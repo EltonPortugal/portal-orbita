@@ -1,0 +1,78 @@
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { colors, fontFamily, spacing } from '../constants';
+import { faq } from '../data';
+import { Button, Card, ScreenContainer, SectionHeader, TopBar } from '../visual';
+import { RootStackParamList } from '../navigation/types';
+
+type Props = NativeStackScreenProps<RootStackParamList, 'Support'>;
+
+/** Central de suporte: abertura de chamado e perguntas frequentes. */
+export function SupportScreen({ navigation }: Props) {
+  return (
+    <ScreenContainer>
+      <TopBar title="Central de suporte" onBack={navigation.goBack} />
+
+      <Card style={styles.contactCard}>
+        <Text style={styles.eyebrow}>FALE COM A SECRETARIA</Text>
+        <Text style={styles.description}>
+          Abra um chamado para dúvidas sobre matrícula, documentos, aproveitamento de disciplinas ou requerimentos.
+        </Text>
+        <Button label="Abrir novo chamado" />
+      </Card>
+
+      <SectionHeader title="Perguntas frequentes" />
+      <Card>
+        {faq.map((entry, index) => (
+          <View key={entry.question} style={[styles.faqRow, index === faq.length - 1 && styles.faqRowLast]}>
+            <Text style={styles.faqText}>
+              <Text style={styles.faqQuestion}>{entry.question}</Text>
+              {'\n'}
+              {entry.answer}
+            </Text>
+          </View>
+        ))}
+      </Card>
+    </ScreenContainer>
+  );
+}
+
+const styles = StyleSheet.create({
+  contactCard: {
+    marginBottom: spacing.lg,
+  },
+  eyebrow: {
+    fontFamily: fontFamily.monoBold,
+    fontSize: 10.5,
+    letterSpacing: 1.5,
+    color: colors.cyan,
+    marginBottom: spacing.md,
+  },
+  description: {
+    fontFamily: fontFamily.bodyRegular,
+    fontSize: 12.5,
+    color: colors.textDim,
+    lineHeight: 19,
+    marginBottom: spacing.lg - 2,
+  },
+  faqRow: {
+    paddingVertical: 11,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
+    borderStyle: 'dashed',
+  },
+  faqRowLast: {
+    borderBottomWidth: 0,
+  },
+  faqText: {
+    fontFamily: fontFamily.bodyRegular,
+    fontSize: 12.5,
+    color: colors.textDim,
+    lineHeight: 19,
+  },
+  faqQuestion: {
+    fontFamily: fontFamily.bodyBold,
+    color: colors.text,
+  },
+});

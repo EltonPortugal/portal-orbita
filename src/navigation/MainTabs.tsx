@@ -1,0 +1,59 @@
+import React from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Feather } from '@expo/vector-icons';
+import { colors, fontFamily } from '../constants';
+import { HomeScreen } from '../screens/HomeScreen';
+import { ScheduleScreen } from '../screens/ScheduleScreen';
+import { GradesScreen } from '../screens/GradesScreen';
+import { CoursesScreen } from '../screens/CoursesScreen';
+import { MoreScreen } from '../screens/MoreScreen';
+import { MainTabParamList } from './types';
+
+const Tab = createBottomTabNavigator<MainTabParamList>();
+
+const tabIcon: Record<keyof MainTabParamList, React.ComponentProps<typeof Feather>['name']> = {
+  Home: 'home',
+  Schedule: 'calendar',
+  Grades: 'bar-chart-2',
+  Courses: 'book',
+  More: 'more-horizontal',
+};
+
+const tabLabel: Record<keyof MainTabParamList, string> = {
+  Home: 'Início',
+  Schedule: 'Horário',
+  Grades: 'Notas',
+  Courses: 'Cursos',
+  More: 'Mais',
+};
+
+/** Navegação inferior das cinco telas primárias — equivalente à `.bottomnav` original. */
+export function MainTabs() {
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarActiveTintColor: colors.violet,
+        tabBarInactiveTintColor: colors.textFaint,
+        tabBarLabelStyle: { fontFamily: fontFamily.monoBold, fontSize: 9.5 },
+        tabBarStyle: {
+          backgroundColor: colors.panel,
+          borderTopColor: colors.line,
+          borderTopWidth: 1,
+          height: 76,
+          paddingTop: 8,
+          paddingBottom: 12,
+        },
+        tabBarIcon: ({ color, size }) => (
+          <Feather name={tabIcon[route.name as keyof MainTabParamList]} size={size - 2} color={color} />
+        ),
+      })}
+    >
+      <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: tabLabel.Home }} />
+      <Tab.Screen name="Schedule" component={ScheduleScreen} options={{ tabBarLabel: tabLabel.Schedule }} />
+      <Tab.Screen name="Grades" component={GradesScreen} options={{ tabBarLabel: tabLabel.Grades }} />
+      <Tab.Screen name="Courses" component={CoursesScreen} options={{ tabBarLabel: tabLabel.Courses }} />
+      <Tab.Screen name="More" component={MoreScreen} options={{ tabBarLabel: tabLabel.More }} />
+    </Tab.Navigator>
+  );
+}

@@ -1,38 +1,55 @@
-# Portal Órbita — Protótipo Mobile
+# Portal Órbita — App Mobile (Expo + React Native)
 
-Protótipo de portal acadêmico com estética retrô-clean (cores claras, sombras leves).
+Aplicativo do portal acadêmico do Instituto Órbita, construído com Expo,
+React Native e TypeScript. É a evolução do protótipo estático em HTML/CSS/JS
+mantido em [`legacy/`](legacy) para referência visual.
 
-## Estrutura de arquivos
+## Como rodar
+
+```bash
+npm install
+npm start        # abre o Expo Dev Tools
+npm run android   # abre no emulador/dispositivo Android
+npm run ios       # abre no simulador iOS (requer macOS)
+npm run web       # abre no navegador
+```
+
+## Estrutura do projeto
 
 ```
-portal-academico/
-├── index.html   → estrutura das telas (HTML)
-├── style.css    → toda a estilização e tema visual (CSS)
-├── script.js    → navegação, dados e interatividade (JavaScript)
-└── README.md    → este arquivo
+portal-orbita/
+├── App.tsx              → Compositor raiz: carrega fontes e monta os
+│                          providers de navegação/área segura. Não contém
+│                          nenhuma tela nem regra de negócio.
+├── index.ts              → Ponto de entrada padrão do Expo (registra App.tsx)
+├── app.json               → Configuração do app Expo (nome, ícones, plugins)
+├── src/
+│   ├── constants/         → Paleta de cores, tipografia (Google Fonts) e
+│   │                        tokens de espaçamento/raio/sombra do tema.
+│   ├── data/               → Dados mockados (aluno, horário, notas,
+│   │                        disciplinas, avisos, financeiro, biblioteca, FAQ).
+│   ├── types/              → Tipos TypeScript compartilhados dos dados acima.
+│   ├── visual/              → Design system: componentes visuais reutilizáveis
+│   │                        (Card, Chip, Tag, Button, IdCard, GpaRing, etc.).
+│   ├── hooks/               → Hooks compartilhados (ex.: `useClock`).
+│   ├── navigation/          → `RootNavigator` (stack) e `MainTabs` (abas),
+│   │                        com os tipos de rotas (`types.ts`).
+│   └── screens/             → Uma tela por arquivo, compondo os componentes
+│                            de `visual/` com os dados de `data/`.
+├── assets/                → Ícones e splash screen do app.
+└── legacy/                 → Protótipo estático original (HTML/CSS/JS),
+                             mantido apenas como referência de design.
 ```
 
-## Como usar
+## Navegação
 
-Abra `index.html` diretamente no navegador. Os três arquivos precisam
-ficar **na mesma pasta**, pois o HTML referencia o CSS e o JS por
-caminho relativo (`style.css` e `script.js`).
-
-## Organização interna
-
-- **style.css** está dividido em 15 seções comentadas (variáveis,
-  moldura do dispositivo, componentes globais, e uma seção por tela:
-  login, início, horário, notas, disciplinas, mais, financeiro,
-  biblioteca, avisos, perfil, navegação inferior).
-- **script.js** está dividido em 6 seções comentadas (navegação entre
-  telas, relógio/saudação, efeito do cartão de identificação, e os
-  dados + renderização de horário, notas e disciplinas).
-- **index.html** contém apenas a marcação das telas, sem nenhum CSS
-  ou JS embutido — os `<link>` e `<script>` apontam para os arquivos
-  externos no topo/rodapé do documento.
+- **Login** → tela inicial, autentica e leva para as abas principais.
+- **Abas principais** (`MainTabs`): Início, Horário, Notas, Disciplinas, Mais.
+- **Telas secundárias** (empilhadas sobre as abas, com botão voltar):
+  Financeiro, Biblioteca, Mural de avisos, Suporte e Perfil.
 
 ## Personalização rápida
 
-- Cores e fontes: edite as variáveis no topo de `style.css` (bloco `:root`).
-- Dados mockados (aluno, notas, horário, disciplinas): edite os arrays
-  no início de cada seção de `script.js`.
+- Cores, fontes e espaçamentos: `src/constants/`.
+- Dados mockados (aluno, notas, horário, disciplinas, avisos...): `src/data/`.
+- Componentes visuais (aparência): `src/visual/`.
