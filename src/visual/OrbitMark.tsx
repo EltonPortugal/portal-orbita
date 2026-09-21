@@ -1,9 +1,10 @@
 import React from 'react';
 import Svg, { Circle, Ellipse } from 'react-native-svg';
-import { colors } from '../constants';
+import { useColors } from '../theme';
 
 /** Marca "Órbita" — três elipses cruzadas simulando trajetórias orbitais. */
 export function OrbitMark({ size = 64 }: { size?: number }) {
+  const colors = useColors();
   return (
     <Svg width={size} height={size} viewBox="0 0 64 64" fill="none">
       <Circle cx={32} cy={32} r={30} fill={colors.panel} stroke={colors.line} strokeWidth={1} />

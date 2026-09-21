@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { colors, fontFamily, spacing } from '../constants';
+import { fontFamily, spacing } from '../constants';
+import { Theme, useColors, useTheme, useThemedStyles } from '../theme';
 import { student } from '../data';
 import { Button, Eyebrow, IdCard, ScreenContainer, ToggleSwitch } from '../visual';
 import { RootStackParamList } from '../navigation/types';
@@ -11,8 +12,10 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Profile'>;
 
 /** Perfil do estudante: dados pessoais e preferências de conta. */
 export function ProfileScreen({ navigation }: Props) {
+  const styles = useThemedStyles(makeStyles);
+  const colors = useColors();
+  const { scheme, setScheme } = useTheme();
   const [pushNotifications, setPushNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(true);
   const [faceId, setFaceId] = useState(false);
 
   return (
@@ -58,7 +61,10 @@ export function ProfileScreen({ navigation }: Props) {
             <Feather name="moon" size={16} color={colors.cyan} />
             <Text style={styles.rowLabel}>Modo escuro</Text>
           </View>
-          <ToggleSwitch value={darkMode} onValueChange={setDarkMode} />
+          <ToggleSwitch
+            value={scheme === 'dark'}
+            onValueChange={(enabled) => setScheme(enabled ? 'dark' : 'light')}
+          />
         </View>
         <View style={[styles.row, styles.rowLast]}>
           <View style={styles.rowLeft}>
@@ -79,50 +85,51 @@ export function ProfileScreen({ navigation }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  eyebrow: {
-    marginTop: 16,
-  },
-  heading: {
-    fontFamily: fontFamily.bodyBold,
-    fontSize: 19,
-    color: colors.text,
-    marginBottom: spacing.lg,
-  },
-  idCardWrap: {
-    marginBottom: spacing.md,
-  },
-  list: {
-    marginTop: spacing.xl - 4,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
-    borderStyle: 'dashed',
-  },
-  rowLast: {
-    borderBottomWidth: 0,
-  },
-  rowLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-  },
-  rowLabel: {
-    fontFamily: fontFamily.bodyRegular,
-    fontSize: 13,
-    color: colors.text,
-  },
-  rowValue: {
-    fontFamily: fontFamily.monoRegular,
-    fontSize: 11.5,
-    color: colors.textDim,
-  },
-  logoutButton: {
-    marginTop: spacing.xxl - 4,
-  },
-});
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    eyebrow: {
+      marginTop: 16,
+    },
+    heading: {
+      fontFamily: fontFamily.bodyBold,
+      fontSize: 19,
+      color: t.colors.text,
+      marginBottom: spacing.lg,
+    },
+    idCardWrap: {
+      marginBottom: spacing.md,
+    },
+    list: {
+      marginTop: spacing.xl - 4,
+    },
+    row: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 14,
+      borderBottomWidth: 1,
+      borderBottomColor: t.colors.line,
+      borderStyle: 'dashed',
+    },
+    rowLast: {
+      borderBottomWidth: 0,
+    },
+    rowLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+    },
+    rowLabel: {
+      fontFamily: fontFamily.bodyRegular,
+      fontSize: 13,
+      color: t.colors.text,
+    },
+    rowValue: {
+      fontFamily: fontFamily.monoRegular,
+      fontSize: 11.5,
+      color: t.colors.textDim,
+    },
+    logoutButton: {
+      marginTop: spacing.xxl - 4,
+    },
+  });

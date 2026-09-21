@@ -2,20 +2,26 @@ import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { colors, fontFamily, radius, shadow, spacing } from '../constants';
+import { fontFamily, radius, spacing } from '../constants';
+import { Palette, Theme, useColors, useThemedStyles } from '../theme';
 import { libraryCategories, loans } from '../data';
+import { DueStatus } from '../types';
 import { Chip, SectionHeader, ScreenContainer, TopBar } from '../visual';
 import { RootStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Library'>;
 
-const dueStatusColor = {
-  ok: { fg: colors.mint, bg: 'rgba(91, 127, 58, 0.14)' },
-  warn: { fg: colors.rose, bg: 'rgba(175, 59, 46, 0.14)' },
-};
+/** Verde quando o prazo está folgado, vermelho quando aperta. */
+function dueTone(colors: Palette, status: DueStatus) {
+  return status === 'ok'
+    ? { fg: colors.mint, bg: colors.mintSoft }
+    : { fg: colors.rose, bg: colors.roseSoft };
+}
 
 /** Biblioteca: busca, categorias e lista de empréstimos ativos. */
 export function LibraryScreen({ navigation }: Props) {
+  const styles = useThemedStyles(makeStyles);
+  const colors = useColors();
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState(libraryCategories[0]);
 
@@ -47,7 +53,7 @@ export function LibraryScreen({ navigation }: Props) {
 
       <SectionHeader title="Meus empréstimos" />
       {loans.map((book) => {
-        const tone = dueStatusColor[book.dueStatus];
+        const tone = dueTone(colors, book.dueStatus);
         return (
           <View key={book.id} style={styles.bookRow}>
             <View style={styles.cover} />
@@ -65,64 +71,65 @@ export function LibraryScreen({ navigation }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  searchBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm + 2,
-    backgroundColor: colors.panel,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: radius.md,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    marginBottom: spacing.xl - 2,
-    ...shadow.sm,
-  },
-  searchInput: {
-    flex: 1,
-    fontFamily: fontFamily.monoRegular,
-    fontSize: 13,
-    color: colors.text,
-  },
-  categoryRow: {
-    gap: spacing.sm,
-    marginBottom: spacing.xl,
-  },
-  bookRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    marginBottom: spacing.lg - 2,
-  },
-  cover: {
-    width: 42,
-    height: 56,
-    borderRadius: 4,
-    backgroundColor: colors.violet,
-    ...shadow.sm,
-  },
-  bookInfo: {
-    flex: 1,
-  },
-  bookTitle: {
-    fontFamily: fontFamily.bodyBold,
-    fontSize: 13,
-    color: colors.text,
-  },
-  bookAuthor: {
-    fontFamily: fontFamily.bodyRegular,
-    fontSize: 11,
-    color: colors.textDim,
-    marginTop: 2,
-  },
-  duePill: {
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 7,
-  },
-  dueLabel: {
-    fontFamily: fontFamily.monoBold,
-    fontSize: 10.5,
-  },
-});
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    searchBox: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm + 2,
+      backgroundColor: t.colors.panel,
+      borderWidth: 1,
+      borderColor: t.colors.line,
+      borderRadius: radius.md,
+      paddingVertical: 12,
+      paddingHorizontal: 14,
+      marginBottom: spacing.xl - 2,
+      ...t.shadow.sm,
+    },
+    searchInput: {
+      flex: 1,
+      fontFamily: fontFamily.monoRegular,
+      fontSize: 13,
+      color: t.colors.text,
+    },
+    categoryRow: {
+      gap: spacing.sm,
+      marginBottom: spacing.xl,
+    },
+    bookRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      marginBottom: spacing.lg - 2,
+    },
+    cover: {
+      width: 42,
+      height: 56,
+      borderRadius: 4,
+      backgroundColor: t.colors.violet,
+      ...t.shadow.sm,
+    },
+    bookInfo: {
+      flex: 1,
+    },
+    bookTitle: {
+      fontFamily: fontFamily.bodyBold,
+      fontSize: 13,
+      color: t.colors.text,
+    },
+    bookAuthor: {
+      fontFamily: fontFamily.bodyRegular,
+      fontSize: 11,
+      color: t.colors.textDim,
+      marginTop: 2,
+    },
+    duePill: {
+      paddingVertical: 4,
+      paddingHorizontal: 8,
+      borderRadius: 7,
+    },
+    dueLabel: {
+      fontFamily: fontFamily.monoBold,
+      fontSize: 10.5,
+    },
+  });

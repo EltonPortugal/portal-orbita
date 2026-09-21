@@ -1,9 +1,10 @@
 import React, { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, fontFamily, spacing } from '../constants';
+import { fontFamily, spacing } from '../constants';
+import { Palette, Theme, useColors, useThemedStyles } from '../theme';
 import { grades, gradesSummary } from '../data';
 import { Grade } from '../types';
-import { Chip, Eyebrow, GpaRing, ProgressBar, ScreenContainer } from '../visual';
+import { Chip, Eyebrow, GpaRing, ProgressBar, ScreenContainer, ThemeToggle } from '../visual';
 
 type GradeFilter = 'todas' | Grade['status'];
 
@@ -17,8 +18,22 @@ function average(grade: Grade) {
   return grade.av2 != null ? (grade.av1 + grade.av2) / 2 : null;
 }
 
+/** Cor e rótulo da pill de média: neutra enquanto cursa, verde/âmbar quando fechada. */
+function mediaTone(colors: Palette, media: number | null) {
+  if (media === null) {
+    return { label: 'Cursando', fg: colors.violet, bg: colors.violetSoft };
+  }
+  const approved = media >= 7;
+  return {
+    label: media.toFixed(1),
+    fg: approved ? colors.mint : colors.amber,
+    bg: approved ? colors.mintSoft : colors.amberSoft,
+  };
+}
+
 /** Notas e frequência: anel de CRA, filtros e cartões expansíveis por disciplina. */
 export function GradesScreen() {
+  const styles = useThemedStyles(makeStyles);
   const [filter, setFilter] = useState<GradeFilter>('todas');
   const filtered = useMemo(
     () => grades.filter((grade) => filter === 'todas' || grade.status === filter),
@@ -28,7 +43,10 @@ export function GradesScreen() {
   return (
     <ScreenContainer>
       <Eyebrow label="Desempenho acadêmico" style={styles.eyebrow} />
-      <Text style={styles.heading}>Notas &amp; frequência</Text>
+      <View style={styles.headingRow}>
+        <Text style={styles.heading}>Notas &amp; frequência</Text>
+        <ThemeToggle />
+      </View>
 
       <View style={styles.summaryRow}>
         <GpaRing value={gradesSummary.cra} />
@@ -62,17 +80,10 @@ export function GradesScreen() {
 }
 
 function GradeCard({ grade }: { grade: Grade }) {
+  const styles = useThemedStyles(makeStyles);
+  const colors = useColors();
   const [open, setOpen] = useState(false);
-  const media = average(grade);
-
-  let pillLabel: string = 'Cursando';
-  let pillColor: string = colors.violet;
-  let pillBg: string = 'rgba(166, 84, 59, 0.16)';
-  if (media !== null) {
-    pillLabel = media.toFixed(1);
-    pillColor = media >= 7 ? colors.mint : colors.amber;
-    pillBg = media >= 7 ? 'rgba(91, 127, 58, 0.16)' : 'rgba(201, 138, 46, 0.16)';
-  }
+  const tone = mediaTone(colors, average(grade));
 
   return (
     <Pressable style={styles.card} onPress={() => setOpen((prev) => !prev)}>
@@ -81,8 +92,8 @@ function GradeCard({ grade }: { grade: Grade }) {
           <Text style={styles.subject}>{grade.subject}</Text>
           <Text style={styles.code}>{grade.code}</Text>
         </View>
-        <View style={[styles.pill, { backgroundColor: pillBg }]}>
-          <Text style={[styles.pillLabel, { color: pillColor }]}>{pillLabel}</Text>
+        <View style={[styles.pill, { backgroundColor: tone.bg }]}>
+          <Text style={[styles.pillLabel, { color: tone.fg }]}>{tone.label}</Text>
         </View>
       </View>
 
@@ -111,113 +122,120 @@ function GradeCard({ grade }: { grade: Grade }) {
   );
 }
 
-const styles = StyleSheet.create({
-  eyebrow: {
-    marginTop: 16,
-  },
-  heading: {
-    fontFamily: fontFamily.bodyBold,
-    fontSize: 19,
-    color: colors.text,
-    marginBottom: spacing.xl - 2,
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.lg + 2,
-    marginBottom: spacing.xl + 2,
-  },
-  legend: {
-    flex: 1,
-  },
-  legendRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 4,
-  },
-  legendLabel: {
-    fontFamily: fontFamily.bodyRegular,
-    fontSize: 12,
-    color: colors.textDim,
-  },
-  legendValue: {
-    fontFamily: fontFamily.monoBold,
-    fontSize: 12,
-    color: colors.text,
-  },
-  filterRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    marginBottom: spacing.lg,
-  },
-  card: {
-    backgroundColor: colors.panel,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 16,
-    marginBottom: spacing.md,
-    overflow: 'hidden',
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: spacing.lg,
-  },
-  subject: {
-    fontFamily: fontFamily.bodyBold,
-    fontSize: 13.5,
-    color: colors.text,
-  },
-  code: {
-    fontFamily: fontFamily.monoRegular,
-    fontSize: 10.5,
-    color: colors.textFaint,
-    marginTop: 2,
-  },
-  pill: {
-    paddingVertical: 5,
-    paddingHorizontal: 10,
-    borderRadius: 8,
-  },
-  pillLabel: {
-    fontFamily: fontFamily.monoBold,
-    fontSize: 13,
-  },
-  detail: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.lg,
-  },
-  detailRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  detailLabel: {
-    fontFamily: fontFamily.monoRegular,
-    fontSize: 11.5,
-    color: colors.textDim,
-    width: 30,
-  },
-  barWrap: {
-    flex: 1,
-    marginHorizontal: spacing.sm + 2,
-  },
-  detailValue: {
-    fontFamily: fontFamily.monoRegular,
-    fontSize: 11.5,
-    color: colors.textDim,
-    width: 28,
-    textAlign: 'right',
-  },
-  freqNote: {
-    fontFamily: fontFamily.monoRegular,
-    fontSize: 10.5,
-    color: colors.textFaint,
-    paddingTop: spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: colors.line,
-    borderStyle: 'dashed',
-  },
-});
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    eyebrow: {
+      marginTop: 16,
+    },
+    headingRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.xl - 2,
+    },
+    heading: {
+      flex: 1,
+      fontFamily: fontFamily.bodyBold,
+      fontSize: 19,
+      color: t.colors.text,
+    },
+    summaryRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.lg + 2,
+      marginBottom: spacing.xl + 2,
+    },
+    legend: {
+      flex: 1,
+    },
+    legendRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      paddingVertical: 4,
+    },
+    legendLabel: {
+      fontFamily: fontFamily.bodyRegular,
+      fontSize: 12,
+      color: t.colors.textDim,
+    },
+    legendValue: {
+      fontFamily: fontFamily.monoBold,
+      fontSize: 12,
+      color: t.colors.text,
+    },
+    filterRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+      marginBottom: spacing.lg,
+    },
+    card: {
+      backgroundColor: t.colors.panel,
+      borderWidth: 1,
+      borderColor: t.colors.line,
+      borderRadius: 16,
+      marginBottom: spacing.md,
+      overflow: 'hidden',
+    },
+    cardHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 14,
+      paddingHorizontal: spacing.lg,
+    },
+    subject: {
+      fontFamily: fontFamily.bodyBold,
+      fontSize: 13.5,
+      color: t.colors.text,
+    },
+    code: {
+      fontFamily: fontFamily.monoRegular,
+      fontSize: 10.5,
+      color: t.colors.textFaint,
+      marginTop: 2,
+    },
+    pill: {
+      paddingVertical: 5,
+      paddingHorizontal: 10,
+      borderRadius: 8,
+    },
+    pillLabel: {
+      fontFamily: fontFamily.monoBold,
+      fontSize: 13,
+    },
+    detail: {
+      paddingHorizontal: spacing.lg,
+      paddingBottom: spacing.lg,
+    },
+    detailRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    detailLabel: {
+      fontFamily: fontFamily.monoRegular,
+      fontSize: 11.5,
+      color: t.colors.textDim,
+      width: 30,
+    },
+    barWrap: {
+      flex: 1,
+      marginHorizontal: spacing.sm + 2,
+    },
+    detailValue: {
+      fontFamily: fontFamily.monoRegular,
+      fontSize: 11.5,
+      color: t.colors.textDim,
+      width: 28,
+      textAlign: 'right',
+    },
+    freqNote: {
+      fontFamily: fontFamily.monoRegular,
+      fontSize: 10.5,
+      color: t.colors.textFaint,
+      paddingTop: spacing.sm,
+      borderTopWidth: 1,
+      borderTopColor: t.colors.line,
+      borderStyle: 'dashed',
+    },
+  });

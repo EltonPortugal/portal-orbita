@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient, Stop } from 'react-native-svg';
-import { colors, fontFamily } from '../constants';
+import { fontFamily } from '../constants';
+import { Theme, useColors, useThemedStyles } from '../theme';
 
 interface GpaRingProps {
   value: number;
@@ -12,6 +13,8 @@ interface GpaRingProps {
 
 /** Anel de progresso circular exibindo o CRA — equivalente ao `.gpa-ring` original. */
 export function GpaRing({ value, maxValue = 10, label = 'CRA', size = 96 }: GpaRingProps) {
+  const styles = useThemedStyles(makeStyles);
+  const colors = useColors();
   const strokeWidth = 8;
   const radiusPx = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radiusPx;
@@ -55,25 +58,26 @@ export function GpaRing({ value, maxValue = 10, label = 'CRA', size = 96 }: GpaR
   );
 }
 
-const styles = StyleSheet.create({
-  rotated: {
-    transform: [{ rotate: '-90deg' }],
-  },
-  center: {
-    ...StyleSheet.absoluteFill,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  value: {
-    fontFamily: fontFamily.monoBold,
-    fontSize: 21,
-    color: colors.text,
-  },
-  label: {
-    fontFamily: fontFamily.bodyRegular,
-    fontSize: 8.5,
-    color: colors.textFaint,
-    letterSpacing: 1,
-    marginTop: 2,
-  },
-});
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    rotated: {
+      transform: [{ rotate: '-90deg' }],
+    },
+    center: {
+      ...StyleSheet.absoluteFill,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    value: {
+      fontFamily: fontFamily.monoBold,
+      fontSize: 21,
+      color: t.colors.text,
+    },
+    label: {
+      fontFamily: fontFamily.bodyRegular,
+      fontSize: 8.5,
+      color: t.colors.textFaint,
+      letterSpacing: 1,
+      marginTop: 2,
+    },
+  });

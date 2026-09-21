@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { colors } from '../constants';
+import { Theme, useColors, useThemedStyles } from '../theme';
 
 interface ProgressBarProps {
   /** 0 a 100 */
@@ -10,26 +10,30 @@ interface ProgressBarProps {
 }
 
 /** Barra de progresso simples (usada em disciplinas e no detalhe de notas). */
-export function ProgressBar({ percent, color = colors.violet, height = 6 }: ProgressBarProps) {
+export function ProgressBar({ percent, color, height = 6 }: ProgressBarProps) {
+  const styles = useThemedStyles(makeStyles);
+  const colors = useColors();
+  const fillColor = color ?? colors.violet;
   const clamped = Math.max(0, Math.min(100, percent));
   return (
     <View style={[styles.track, { height, borderRadius: height / 2 }]}>
       <View
         style={[
           styles.fill,
-          { width: `${clamped}%`, backgroundColor: color, borderRadius: height / 2 },
+          { width: `${clamped}%`, backgroundColor: fillColor, borderRadius: height / 2 },
         ]}
       />
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  track: {
-    backgroundColor: colors.panel3,
-    overflow: 'hidden',
-  },
-  fill: {
-    height: '100%',
-  },
-});
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    track: {
+      backgroundColor: t.colors.panel3,
+      overflow: 'hidden',
+    },
+    fill: {
+      height: '100%',
+    },
+  });

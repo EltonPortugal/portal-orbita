@@ -3,8 +3,9 @@ import { StyleSheet, Text, View } from 'react-native';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
-import { colors, fontFamily, spacing } from '../constants';
-import { Eyebrow, MoreTile, ScreenContainer } from '../visual';
+import { fontFamily, spacing } from '../constants';
+import { Theme, useThemedStyles } from '../theme';
+import { Eyebrow, MoreTile, ScreenContainer, ThemeToggle } from '../visual';
 import { MainTabParamList, RootStackParamList } from '../navigation/types';
 
 type Props = CompositeScreenProps<
@@ -14,11 +15,15 @@ type Props = CompositeScreenProps<
 
 /** Grade de navegação para as demais áreas do portal e encerramento de sessão. */
 export function MoreScreen({ navigation }: Props) {
+  const styles = useThemedStyles(makeStyles);
   const rootNavigation = navigation.getParent<NativeStackNavigationProp<RootStackParamList>>();
   return (
     <ScreenContainer>
       <Eyebrow label="Navegação" style={styles.eyebrow} />
-      <Text style={styles.heading}>Mais opções</Text>
+      <View style={styles.headingRow}>
+        <Text style={styles.heading}>Mais opções</Text>
+        <ThemeToggle />
+      </View>
 
       <View style={styles.grid}>
         <MoreTile
@@ -63,19 +68,26 @@ export function MoreScreen({ navigation }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  eyebrow: {
-    marginTop: 16,
-  },
-  heading: {
-    fontFamily: fontFamily.bodyBold,
-    fontSize: 19,
-    color: colors.text,
-    marginBottom: spacing.lg,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.md,
-  },
-});
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    eyebrow: {
+      marginTop: 16,
+    },
+    headingRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.lg,
+    },
+    heading: {
+      flex: 1,
+      fontFamily: fontFamily.bodyBold,
+      fontSize: 19,
+      color: t.colors.text,
+    },
+    grid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.md,
+    },
+  });

@@ -1,7 +1,8 @@
 import React, { useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, fontFamily, radius, shadow, spacing } from '../constants';
+import { fontFamily, radius, spacing } from '../constants';
+import { Theme, useColors, useThemedStyles } from '../theme';
 import { StudentProfile } from '../types';
 import { Barcode } from './Barcode';
 
@@ -18,6 +19,8 @@ interface IdCardProps {
  * scroll da tela quando o card está dentro de uma lista rolável).
  */
 export function IdCard({ student, showMeta = true }: IdCardProps) {
+  const styles = useThemedStyles(makeStyles);
+  const colors = useColors();
   const tilt = useRef(new Animated.Value(0)).current;
 
   const animateTo = (toValue: number) => {
@@ -37,7 +40,7 @@ export function IdCard({ student, showMeta = true }: IdCardProps) {
         ]}
       >
         <LinearGradient
-          colors={[colors.panel, '#F8F3E5']}
+          colors={[colors.panel, colors.panelGradientEnd]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={StyleSheet.absoluteFill}
@@ -81,122 +84,123 @@ export function IdCard({ student, showMeta = true }: IdCardProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    borderRadius: radius.lg,
-    borderWidth: 1.5,
-    borderColor: colors.line,
-    paddingVertical: spacing.lg,
-    paddingHorizontal: spacing.lg + 2,
-    overflow: 'hidden',
-    ...shadow.md,
-  },
-  dashedRule: {
-    position: 'absolute',
-    left: 12,
-    top: 10,
-    bottom: 10,
-    borderLeftWidth: 2,
-    borderStyle: 'dashed',
-    borderColor: colors.textFaint,
-    opacity: 0.55,
-  },
-  top: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    paddingLeft: spacing.lg - 2,
-  },
-  org: {
-    fontFamily: fontFamily.display,
-    fontSize: 15,
-    letterSpacing: 1.4,
-    color: colors.text,
-  },
-  chip: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: colors.panel2,
-    borderWidth: 1.5,
-    borderStyle: 'dashed',
-    borderColor: colors.cyan,
-  },
-  body: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.md,
-    marginTop: spacing.lg,
-    paddingLeft: spacing.lg - 2,
-  },
-  avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: radius.sm + 4,
-    backgroundColor: colors.text,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadow.sm,
-  },
-  avatarLabel: {
-    fontFamily: fontFamily.display,
-    fontSize: 19,
-    color: colors.panel,
-  },
-  info: {
-    flex: 1,
-  },
-  name: {
-    fontFamily: fontFamily.bodyBold,
-    fontSize: 15,
-    color: colors.text,
-  },
-  course: {
-    fontFamily: fontFamily.bodyRegular,
-    fontSize: 11.5,
-    color: colors.textDim,
-    marginTop: 2,
-  },
-  meta: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    marginTop: spacing.lg,
-    paddingLeft: spacing.lg - 2,
-  },
-  metaLabel: {
-    fontFamily: fontFamily.monoRegular,
-    fontSize: 9,
-    color: colors.textFaint,
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-  },
-  metaValue: {
-    fontFamily: fontFamily.monoBold,
-    fontSize: 12,
-    color: colors.text,
-    marginTop: 2,
-  },
-  activeBadge: {
-    position: 'absolute',
-    bottom: 10,
-    right: 12,
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    borderWidth: 1.5,
-    borderStyle: 'dashed',
-    borderColor: colors.rose,
-    alignItems: 'center',
-    justifyContent: 'center',
-    transform: [{ rotate: '-11deg' }],
-    opacity: 0.8,
-  },
-  activeBadgeLabel: {
-    fontFamily: fontFamily.monoBold,
-    fontSize: 8.5,
-    letterSpacing: 1,
-    color: colors.rose,
-    textAlign: 'center',
-  },
-});
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    card: {
+      borderRadius: radius.lg,
+      borderWidth: 1.5,
+      borderColor: t.colors.line,
+      paddingVertical: spacing.lg,
+      paddingHorizontal: spacing.lg + 2,
+      overflow: 'hidden',
+      ...t.shadow.md,
+    },
+    dashedRule: {
+      position: 'absolute',
+      left: 12,
+      top: 10,
+      bottom: 10,
+      borderLeftWidth: 2,
+      borderStyle: 'dashed',
+      borderColor: t.colors.textFaint,
+      opacity: 0.55,
+    },
+    top: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      paddingLeft: spacing.lg - 2,
+    },
+    org: {
+      fontFamily: fontFamily.display,
+      fontSize: 15,
+      letterSpacing: 1.4,
+      color: t.colors.text,
+    },
+    chip: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      backgroundColor: t.colors.panel2,
+      borderWidth: 1.5,
+      borderStyle: 'dashed',
+      borderColor: t.colors.cyan,
+    },
+    body: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.md,
+      marginTop: spacing.lg,
+      paddingLeft: spacing.lg - 2,
+    },
+    avatar: {
+      width: 52,
+      height: 52,
+      borderRadius: radius.sm + 4,
+      backgroundColor: t.colors.text,
+      alignItems: 'center',
+      justifyContent: 'center',
+      ...t.shadow.sm,
+    },
+    avatarLabel: {
+      fontFamily: fontFamily.display,
+      fontSize: 19,
+      color: t.colors.onText,
+    },
+    info: {
+      flex: 1,
+    },
+    name: {
+      fontFamily: fontFamily.bodyBold,
+      fontSize: 15,
+      color: t.colors.text,
+    },
+    course: {
+      fontFamily: fontFamily.bodyRegular,
+      fontSize: 11.5,
+      color: t.colors.textDim,
+      marginTop: 2,
+    },
+    meta: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-end',
+      marginTop: spacing.lg,
+      paddingLeft: spacing.lg - 2,
+    },
+    metaLabel: {
+      fontFamily: fontFamily.monoRegular,
+      fontSize: 9,
+      color: t.colors.textFaint,
+      letterSpacing: 1,
+      textTransform: 'uppercase',
+    },
+    metaValue: {
+      fontFamily: fontFamily.monoBold,
+      fontSize: 12,
+      color: t.colors.text,
+      marginTop: 2,
+    },
+    activeBadge: {
+      position: 'absolute',
+      bottom: 10,
+      right: 12,
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      borderWidth: 1.5,
+      borderStyle: 'dashed',
+      borderColor: t.colors.rose,
+      alignItems: 'center',
+      justifyContent: 'center',
+      transform: [{ rotate: '-11deg' }],
+      opacity: 0.8,
+    },
+    activeBadgeLabel: {
+      fontFamily: fontFamily.monoBold,
+      fontSize: 8.5,
+      letterSpacing: 1,
+      color: t.colors.rose,
+      textAlign: 'center',
+    },
+  });

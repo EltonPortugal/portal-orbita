@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
-import { colors, fontFamily, radius, shadow, spacing } from '../constants';
+import { fontFamily, radius, spacing } from '../constants';
+import { Theme, useThemedStyles } from '../theme';
 
 interface ChipProps {
   label: string;
@@ -10,6 +11,7 @@ interface ChipProps {
 
 /** Chip/pill selecionável — usado para dias da semana, filtros e categorias. */
 export function Chip({ label, active, onPress }: ChipProps) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <Pressable
       onPress={onPress}
@@ -24,29 +26,30 @@ export function Chip({ label, active, onPress }: ChipProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  chip: {
-    paddingVertical: spacing.sm + 1,
-    paddingHorizontal: spacing.lg - 2,
-    borderRadius: radius.md - 2,
-    backgroundColor: colors.panel,
-    borderWidth: 1,
-    borderColor: colors.line,
-    ...shadow.sm,
-  },
-  chipActive: {
-    backgroundColor: colors.text,
-    borderColor: colors.text,
-  },
-  chipPressed: {
-    opacity: 0.75,
-  },
-  label: {
-    fontFamily: fontFamily.monoBold,
-    fontSize: 12,
-    color: colors.textDim,
-  },
-  labelActive: {
-    color: colors.panel,
-  },
-});
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    chip: {
+      paddingVertical: spacing.sm + 1,
+      paddingHorizontal: spacing.lg - 2,
+      borderRadius: radius.md - 2,
+      backgroundColor: t.colors.panel,
+      borderWidth: 1,
+      borderColor: t.colors.line,
+      ...t.shadow.sm,
+    },
+    chipActive: {
+      backgroundColor: t.colors.text,
+      borderColor: t.colors.text,
+    },
+    chipPressed: {
+      opacity: 0.75,
+    },
+    label: {
+      fontFamily: fontFamily.monoBold,
+      fontSize: 12,
+      color: t.colors.textDim,
+    },
+    labelActive: {
+      color: t.colors.onText,
+    },
+  });

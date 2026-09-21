@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, fontFamily } from '../constants';
+import { fontFamily } from '../constants';
+import { Theme, useThemedStyles } from '../theme';
 
 interface EyebrowProps {
   label: string;
@@ -9,6 +10,7 @@ interface EyebrowProps {
 
 /** Rótulo curto em caixa alta, com um traço à esquerda — usado como "olho" de seção. */
 export function Eyebrow({ label, style }: EyebrowProps) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={[styles.row, style]}>
       <View style={styles.dash} />
@@ -17,24 +19,25 @@ export function Eyebrow({ label, style }: EyebrowProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 6,
-  },
-  dash: {
-    width: 14,
-    height: 2,
-    borderRadius: 2,
-    backgroundColor: colors.cyan,
-  },
-  label: {
-    fontFamily: fontFamily.monoBold,
-    fontSize: 10.5,
-    letterSpacing: 1.5,
-    textTransform: 'uppercase',
-    color: colors.cyan,
-  },
-});
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 6,
+    },
+    dash: {
+      width: 14,
+      height: 2,
+      borderRadius: 2,
+      backgroundColor: t.colors.cyan,
+    },
+    label: {
+      fontFamily: fontFamily.monoBold,
+      fontSize: 10.5,
+      letterSpacing: 1.5,
+      textTransform: 'uppercase',
+      color: t.colors.cyan,
+    },
+  });

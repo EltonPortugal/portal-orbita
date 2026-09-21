@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { colors, fontFamily } from '../constants';
+import { fontFamily } from '../constants';
+import { Theme, useThemedStyles } from '../theme';
 
 interface SectionHeaderProps {
   title: string;
@@ -10,6 +11,7 @@ interface SectionHeaderProps {
 
 /** Cabeçalho de seção com título e link de ação opcional (ex.: "ver tudo"). */
 export function SectionHeader({ title, actionLabel, onActionPress }: SectionHeaderProps) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.row}>
       <Text style={styles.title}>{title}</Text>
@@ -22,21 +24,22 @@ export function SectionHeader({ title, actionLabel, onActionPress }: SectionHead
   );
 }
 
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  title: {
-    fontFamily: fontFamily.bodyBold,
-    fontSize: 15,
-    color: colors.text,
-  },
-  action: {
-    fontFamily: fontFamily.monoRegular,
-    fontSize: 11,
-    color: colors.violet,
-  },
-});
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    row: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 10,
+    },
+    title: {
+      fontFamily: fontFamily.bodyBold,
+      fontSize: 15,
+      color: t.colors.text,
+    },
+    action: {
+      fontFamily: fontFamily.monoRegular,
+      fontSize: 11,
+      color: t.colors.violet,
+    },
+  });

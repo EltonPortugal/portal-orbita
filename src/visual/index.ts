@@ -16,3 +16,4 @@ export * from './EmptyState';
 export * from './GpaRing';
 export * from './IdCard';
 export * from './OrbitMark';
+export * from './ThemeToggle';

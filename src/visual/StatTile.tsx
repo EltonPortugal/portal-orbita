@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, fontFamily, radius, shadow, spacing } from '../constants';
+import { fontFamily, radius, spacing } from '../constants';
+import { Theme, useThemedStyles } from '../theme';
 
 interface StatTileProps {
   value: string;
@@ -9,6 +10,7 @@ interface StatTileProps {
 
 /** Bloco de estatística curta (CRA, Frequência, Créditos) na Home. */
 export function StatTile({ value, label }: StatTileProps) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.tile}>
       <Text style={styles.value}>{value}</Text>
@@ -17,27 +19,28 @@ export function StatTile({ value, label }: StatTileProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  tile: {
-    flex: 1,
-    backgroundColor: colors.panel,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: radius.lg,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.sm,
-    alignItems: 'center',
-    ...shadow.sm,
-  },
-  value: {
-    fontFamily: fontFamily.monoBold,
-    fontSize: 19,
-    color: colors.cyan,
-  },
-  label: {
-    fontFamily: fontFamily.bodyRegular,
-    fontSize: 10,
-    color: colors.textDim,
-    marginTop: 3,
-  },
-});
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    tile: {
+      flex: 1,
+      backgroundColor: t.colors.panel,
+      borderWidth: 1,
+      borderColor: t.colors.line,
+      borderRadius: radius.lg,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.sm,
+      alignItems: 'center',
+      ...t.shadow.sm,
+    },
+    value: {
+      fontFamily: fontFamily.monoBold,
+      fontSize: 19,
+      color: t.colors.cyan,
+    },
+    label: {
+      fontFamily: fontFamily.bodyRegular,
+      fontSize: 10,
+      color: t.colors.textDim,
+      marginTop: 3,
+    },
+  });

@@ -1,6 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { colors } from '../constants';
+import { useColors } from '../theme';
 import { LoginScreen } from '../screens/LoginScreen';
 import { FinancialScreen } from '../screens/FinancialScreen';
 import { LibraryScreen } from '../screens/LibraryScreen';
@@ -18,6 +18,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
  * cada uma com seu próprio `TopBar` fazendo o papel do botão "voltar".
  */
 export function RootNavigator() {
+  const colors = useColors();
   return (
     <Stack.Navigator
       initialRouteName="Login"

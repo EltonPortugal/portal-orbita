@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { colors } from '../constants';
+import { Theme, useThemedStyles } from '../theme';
 
 interface BarcodeProps {
   bars?: number;
@@ -10,6 +10,7 @@ interface BarcodeProps {
 
 /** Código de barras decorativo (carteirinha e boleto), gerado com alturas aleatórias. */
 export function Barcode({ bars = 14, minHeight = 6, maxHeight = 18 }: BarcodeProps) {
+  const styles = useThemedStyles(makeStyles);
   const heights = useMemo(
     () => Array.from({ length: bars }, () => minHeight + Math.random() * (maxHeight - minHeight)),
     [bars, minHeight, maxHeight],
@@ -24,15 +25,16 @@ export function Barcode({ bars = 14, minHeight = 6, maxHeight = 18 }: BarcodePro
   );
 }
 
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    gap: 2,
-  },
-  bar: {
-    width: 2,
-    backgroundColor: colors.text,
-    opacity: 0.65,
-  },
-});
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    row: {
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+      gap: 2,
+    },
+    bar: {
+      width: 2,
+      backgroundColor: t.colors.text,
+      opacity: 0.65,
+    },
+  });

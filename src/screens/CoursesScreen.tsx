@@ -1,15 +1,21 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, fontFamily, spacing } from '../constants';
+import { fontFamily, spacing } from '../constants';
+import { Theme, useColors, useThemedStyles } from '../theme';
 import { courses } from '../data';
-import { Eyebrow, ProgressBar, ScreenContainer } from '../visual';
+import { Eyebrow, ProgressBar, ScreenContainer, ThemeToggle } from '../visual';
 
 /** Lista de disciplinas do semestre corrente com progresso individual. */
 export function CoursesScreen() {
+  const styles = useThemedStyles(makeStyles);
+  const colors = useColors();
   return (
     <ScreenContainer>
       <Eyebrow label="Semestre 2026.2" style={styles.eyebrow} />
-      <Text style={styles.heading}>Minhas disciplinas</Text>
+      <View style={styles.headingRow}>
+        <Text style={styles.heading}>Minhas disciplinas</Text>
+        <ThemeToggle />
+      </View>
 
       {courses.map((course) => (
         <View key={course.subject} style={styles.card}>
@@ -33,64 +39,71 @@ export function CoursesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  eyebrow: {
-    marginTop: 16,
-  },
-  heading: {
-    fontFamily: fontFamily.bodyBold,
-    fontSize: 19,
-    color: colors.text,
-    marginBottom: spacing.xl - 2,
-  },
-  card: {
-    backgroundColor: colors.panel,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 16,
-    padding: 15,
-    marginBottom: spacing.md,
-  },
-  top: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: spacing.md - 2,
-  },
-  topInfo: {
-    flex: 1,
-    paddingRight: spacing.sm,
-  },
-  subject: {
-    fontFamily: fontFamily.bodyBold,
-    fontSize: 14,
-    color: colors.text,
-  },
-  professor: {
-    fontFamily: fontFamily.bodyRegular,
-    fontSize: 11.5,
-    color: colors.textDim,
-    marginTop: 3,
-  },
-  creditsBadge: {
-    backgroundColor: 'rgba(47, 111, 104, 0.1)',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 7,
-  },
-  creditsLabel: {
-    fontFamily: fontFamily.monoBold,
-    fontSize: 10,
-    color: colors.cyan,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: spacing.sm,
-  },
-  footerText: {
-    fontFamily: fontFamily.monoRegular,
-    fontSize: 10.5,
-    color: colors.textFaint,
-  },
-});
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    eyebrow: {
+      marginTop: 16,
+    },
+    headingRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.xl - 2,
+    },
+    heading: {
+      flex: 1,
+      fontFamily: fontFamily.bodyBold,
+      fontSize: 19,
+      color: t.colors.text,
+    },
+    card: {
+      backgroundColor: t.colors.panel,
+      borderWidth: 1,
+      borderColor: t.colors.line,
+      borderRadius: 16,
+      padding: 15,
+      marginBottom: spacing.md,
+    },
+    top: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: spacing.md - 2,
+    },
+    topInfo: {
+      flex: 1,
+      paddingRight: spacing.sm,
+    },
+    subject: {
+      fontFamily: fontFamily.bodyBold,
+      fontSize: 14,
+      color: t.colors.text,
+    },
+    professor: {
+      fontFamily: fontFamily.bodyRegular,
+      fontSize: 11.5,
+      color: t.colors.textDim,
+      marginTop: 3,
+    },
+    creditsBadge: {
+      backgroundColor: t.colors.cyanSoft,
+      paddingVertical: 4,
+      paddingHorizontal: 8,
+      borderRadius: 7,
+    },
+    creditsLabel: {
+      fontFamily: fontFamily.monoBold,
+      fontSize: 10,
+      color: t.colors.cyan,
+    },
+    footer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: spacing.sm,
+    },
+    footerText: {
+      fontFamily: fontFamily.monoRegular,
+      fontSize: 10.5,
+      color: t.colors.textFaint,
+    },
+  });

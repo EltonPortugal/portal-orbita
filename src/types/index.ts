@@ -1,3 +1,5 @@
+import { AccentToken } from '../theme';
+
 export type DayKey = 'SEG' | 'TER' | 'QUA' | 'QUI' | 'SEX' | 'SÁB';
 
 export interface ClassSession {
@@ -5,7 +7,8 @@ export interface ClassSession {
   subject: string;
   room: string;
   professor: string;
-  color: string;
+  /** Token de destaque — a cor concreta vem da paleta ativa. */
+  accent: AccentToken;
 }
 
 export type WeekSchedule = Record<DayKey, ClassSession[]>;

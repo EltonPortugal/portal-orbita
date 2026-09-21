@@ -4,7 +4,8 @@ import { Feather } from '@expo/vector-icons';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { colors, fontFamily, spacing } from '../constants';
+import { fontFamily, spacing } from '../constants';
+import { Theme, useColors, useThemedStyles } from '../theme';
 import { student, nextClass, notices } from '../data';
 import { useClock } from '../hooks/useClock';
 import {
@@ -15,6 +16,7 @@ import {
   SectionHeader,
   StatTile,
   Tag,
+  ThemeToggle,
 } from '../visual';
 import { MainTabParamList, RootStackParamList } from '../navigation/types';
 
@@ -25,6 +27,8 @@ type Props = CompositeScreenProps<
 
 /** Tela inicial: carteirinha, indicadores rápidos, próxima aula e mural recente. */
 export function HomeScreen({ navigation }: Props) {
+  const styles = useThemedStyles(makeStyles);
+  const colors = useColors();
   const { greeting } = useClock();
   const recentNotices = notices.slice(0, 3);
 
@@ -35,10 +39,13 @@ export function HomeScreen({ navigation }: Props) {
           <Text style={styles.greeting}>{greeting}</Text>
           <Text style={styles.name}>{student.displayName}</Text>
         </View>
-        <Pressable style={styles.bell} onPress={() => navigation.navigate('Notices')} hitSlop={8}>
-          <Feather name="bell" size={17} color={colors.violet} />
-          <View style={styles.bellDot} />
-        </Pressable>
+        <View style={styles.headerActions}>
+          <ThemeToggle />
+          <Pressable style={styles.bell} onPress={() => navigation.navigate('Notices')} hitSlop={8}>
+            <Feather name="bell" size={17} color={colors.violet} />
+            <View style={styles.bellDot} />
+          </Pressable>
+        </View>
       </View>
 
       <View style={styles.idCardWrap}>
@@ -92,123 +99,129 @@ export function HomeScreen({ navigation }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    paddingVertical: spacing.lg,
-  },
-  greeting: {
-    fontFamily: fontFamily.monoRegular,
-    fontSize: 10.5,
-    color: colors.textDim,
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-  },
-  name: {
-    fontFamily: fontFamily.display,
-    fontSize: 26,
-    color: colors.text,
-    marginTop: 2,
-  },
-  bell: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: colors.panel,
-    borderWidth: 1,
-    borderColor: colors.line,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  bellDot: {
-    position: 'absolute',
-    top: 8,
-    right: 9,
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.rose,
-    borderWidth: 1.5,
-    borderColor: colors.panel,
-  },
-  idCardWrap: {
-    marginBottom: spacing.xl,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: spacing.md - 2,
-    marginBottom: spacing.xl - 2,
-  },
-  nextClass: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.lg - 2,
-    marginBottom: spacing.xl - 2,
-  },
-  nextClassBar: {
-    width: 4,
-    alignSelf: 'stretch',
-    borderRadius: 4,
-    backgroundColor: colors.violet,
-  },
-  nextClassInfo: {
-    flex: 1,
-  },
-  nextClassSubject: {
-    fontFamily: fontFamily.bodyBold,
-    fontSize: 14.5,
-    color: colors.text,
-  },
-  nextClassMeta: {
-    fontFamily: fontFamily.monoRegular,
-    fontSize: 11,
-    color: colors.textDim,
-    marginTop: 3,
-  },
-  nextClassCountdown: {
-    alignItems: 'flex-end',
-  },
-  countdownValue: {
-    fontFamily: fontFamily.monoBold,
-    fontSize: 13,
-    color: colors.mint,
-  },
-  countdownTime: {
-    fontFamily: fontFamily.monoRegular,
-    fontSize: 9,
-    color: colors.textFaint,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginTop: 2,
-  },
-  quickGrid: {
-    flexDirection: 'row',
-    gap: spacing.md - 2,
-    marginBottom: spacing.xl,
-  },
-  noticeRow: {
-    flexDirection: 'row',
-    gap: spacing.md - 2,
-    alignItems: 'flex-start',
-    paddingVertical: 11,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
-    borderStyle: 'dashed',
-  },
-  noticeRowLast: {
-    borderBottomWidth: 0,
-  },
-  noticeText: {
-    flex: 1,
-    fontFamily: fontFamily.bodyRegular,
-    fontSize: 12.5,
-    color: colors.textDim,
-    lineHeight: 18,
-  },
-  noticeTitle: {
-    fontFamily: fontFamily.bodyBold,
-    color: colors.text,
-  },
-});
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      paddingVertical: spacing.lg,
+    },
+    headerActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    greeting: {
+      fontFamily: fontFamily.monoRegular,
+      fontSize: 10.5,
+      color: t.colors.textDim,
+      letterSpacing: 1.2,
+      textTransform: 'uppercase',
+    },
+    name: {
+      fontFamily: fontFamily.display,
+      fontSize: 26,
+      color: t.colors.text,
+      marginTop: 2,
+    },
+    bell: {
+      width: 38,
+      height: 38,
+      borderRadius: 12,
+      backgroundColor: t.colors.panel,
+      borderWidth: 1,
+      borderColor: t.colors.line,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    bellDot: {
+      position: 'absolute',
+      top: 8,
+      right: 9,
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+      backgroundColor: t.colors.rose,
+      borderWidth: 1.5,
+      borderColor: t.colors.panel,
+    },
+    idCardWrap: {
+      marginBottom: spacing.xl,
+    },
+    statsRow: {
+      flexDirection: 'row',
+      gap: spacing.md - 2,
+      marginBottom: spacing.xl - 2,
+    },
+    nextClass: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.lg - 2,
+      marginBottom: spacing.xl - 2,
+    },
+    nextClassBar: {
+      width: 4,
+      alignSelf: 'stretch',
+      borderRadius: 4,
+      backgroundColor: t.colors.violet,
+    },
+    nextClassInfo: {
+      flex: 1,
+    },
+    nextClassSubject: {
+      fontFamily: fontFamily.bodyBold,
+      fontSize: 14.5,
+      color: t.colors.text,
+    },
+    nextClassMeta: {
+      fontFamily: fontFamily.monoRegular,
+      fontSize: 11,
+      color: t.colors.textDim,
+      marginTop: 3,
+    },
+    nextClassCountdown: {
+      alignItems: 'flex-end',
+    },
+    countdownValue: {
+      fontFamily: fontFamily.monoBold,
+      fontSize: 13,
+      color: t.colors.mint,
+    },
+    countdownTime: {
+      fontFamily: fontFamily.monoRegular,
+      fontSize: 9,
+      color: t.colors.textFaint,
+      textTransform: 'uppercase',
+      letterSpacing: 1,
+      marginTop: 2,
+    },
+    quickGrid: {
+      flexDirection: 'row',
+      gap: spacing.md - 2,
+      marginBottom: spacing.xl,
+    },
+    noticeRow: {
+      flexDirection: 'row',
+      gap: spacing.md - 2,
+      alignItems: 'flex-start',
+      paddingVertical: 11,
+      borderBottomWidth: 1,
+      borderBottomColor: t.colors.line,
+      borderStyle: 'dashed',
+    },
+    noticeRowLast: {
+      borderBottomWidth: 0,
+    },
+    noticeText: {
+      flex: 1,
+      fontFamily: fontFamily.bodyRegular,
+      fontSize: 12.5,
+      color: t.colors.textDim,
+      lineHeight: 18,
+    },
+    noticeTitle: {
+      fontFamily: fontFamily.bodyBold,
+      color: t.colors.text,
+    },
+  });

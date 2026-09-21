@@ -1,7 +1,8 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { colors, fontFamily, radius, shadow, spacing } from '../constants';
+import { fontFamily, radius, spacing } from '../constants';
+import { Theme, useColors, useThemedStyles } from '../theme';
 
 interface QuickActionProps {
   icon: React.ComponentProps<typeof Feather>['name'];
@@ -11,6 +12,8 @@ interface QuickActionProps {
 
 /** Atalho de ação rápida em grade (Financeiro, Biblioteca, Avisos, Suporte...). */
 export function QuickAction({ icon, label, onPress }: QuickActionProps) {
+  const styles = useThemedStyles(makeStyles);
+  const colors = useColors();
   return (
     <Pressable
       onPress={onPress}
@@ -22,28 +25,29 @@ export function QuickAction({ icon, label, onPress }: QuickActionProps) {
   );
 }
 
-const styles = StyleSheet.create({
-  tile: {
-    flex: 1,
-    backgroundColor: colors.panel,
-    borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: radius.lg,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xs,
-    alignItems: 'center',
-    ...shadow.sm,
-  },
-  pressed: {
-    transform: [{ translateY: 1 }],
-  },
-  icon: {
-    marginBottom: 6,
-  },
-  label: {
-    fontFamily: fontFamily.bodyRegular,
-    fontSize: 10,
-    color: colors.textDim,
-    textAlign: 'center',
-  },
-});
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    tile: {
+      flex: 1,
+      backgroundColor: t.colors.panel,
+      borderWidth: 1,
+      borderColor: t.colors.line,
+      borderRadius: radius.lg,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.xs,
+      alignItems: 'center',
+      ...t.shadow.sm,
+    },
+    pressed: {
+      transform: [{ translateY: 1 }],
+    },
+    icon: {
+      marginBottom: 6,
+    },
+    label: {
+      fontFamily: fontFamily.bodyRegular,
+      fontSize: 10,
+      color: t.colors.textDim,
+      textAlign: 'center',
+    },
+  });

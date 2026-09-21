@@ -1,7 +1,8 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Feather } from '@expo/vector-icons';
-import { colors, fontFamily } from '../constants';
+import { fontFamily } from '../constants';
+import { useColors } from '../theme';
 import { HomeScreen } from '../screens/HomeScreen';
 import { ScheduleScreen } from '../screens/ScheduleScreen';
 import { GradesScreen } from '../screens/GradesScreen';
@@ -29,6 +30,7 @@ const tabLabel: Record<keyof MainTabParamList, string> = {
 
 /** Navegação inferior das cinco telas primárias — equivalente à `.bottomnav` original. */
 export function MainTabs() {
+  const colors = useColors();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({

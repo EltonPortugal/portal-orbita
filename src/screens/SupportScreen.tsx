@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { colors, fontFamily, spacing } from '../constants';
+import { fontFamily, spacing } from '../constants';
+import { Theme, useThemedStyles } from '../theme';
 import { faq } from '../data';
 import { Button, Card, ScreenContainer, SectionHeader, TopBar } from '../visual';
 import { RootStackParamList } from '../navigation/types';
@@ -10,6 +11,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Support'>;
 
 /** Central de suporte: abertura de chamado e perguntas frequentes. */
 export function SupportScreen({ navigation }: Props) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <ScreenContainer>
       <TopBar title="Central de suporte" onBack={navigation.goBack} />
@@ -38,41 +40,42 @@ export function SupportScreen({ navigation }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  contactCard: {
-    marginBottom: spacing.lg,
-  },
-  eyebrow: {
-    fontFamily: fontFamily.monoBold,
-    fontSize: 10.5,
-    letterSpacing: 1.5,
-    color: colors.cyan,
-    marginBottom: spacing.md,
-  },
-  description: {
-    fontFamily: fontFamily.bodyRegular,
-    fontSize: 12.5,
-    color: colors.textDim,
-    lineHeight: 19,
-    marginBottom: spacing.lg - 2,
-  },
-  faqRow: {
-    paddingVertical: 11,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.line,
-    borderStyle: 'dashed',
-  },
-  faqRowLast: {
-    borderBottomWidth: 0,
-  },
-  faqText: {
-    fontFamily: fontFamily.bodyRegular,
-    fontSize: 12.5,
-    color: colors.textDim,
-    lineHeight: 19,
-  },
-  faqQuestion: {
-    fontFamily: fontFamily.bodyBold,
-    color: colors.text,
-  },
-});
+const makeStyles = (t: Theme) =>
+  StyleSheet.create({
+    contactCard: {
+      marginBottom: spacing.lg,
+    },
+    eyebrow: {
+      fontFamily: fontFamily.monoBold,
+      fontSize: 10.5,
+      letterSpacing: 1.5,
+      color: t.colors.cyan,
+      marginBottom: spacing.md,
+    },
+    description: {
+      fontFamily: fontFamily.bodyRegular,
+      fontSize: 12.5,
+      color: t.colors.textDim,
+      lineHeight: 19,
+      marginBottom: spacing.lg - 2,
+    },
+    faqRow: {
+      paddingVertical: 11,
+      borderBottomWidth: 1,
+      borderBottomColor: t.colors.line,
+      borderStyle: 'dashed',
+    },
+    faqRowLast: {
+      borderBottomWidth: 0,
+    },
+    faqText: {
+      fontFamily: fontFamily.bodyRegular,
+      fontSize: 12.5,
+      color: t.colors.textDim,
+      lineHeight: 19,
+    },
+    faqQuestion: {
+      fontFamily: fontFamily.bodyBold,
+      color: t.colors.text,
+    },
+  });
