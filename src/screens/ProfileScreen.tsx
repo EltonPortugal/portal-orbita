@@ -5,7 +5,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { fontFamily, spacing } from '../constants';
 import { Theme, useColors, useTheme, useThemedStyles } from '../theme';
 import { student } from '../data';
-import { Button, Eyebrow, IdCard, ScreenContainer, ToggleSwitch } from '../visual';
+import { Button, IdCard, ScreenContainer, ToggleSwitch, TopBar } from '../visual';
 import { RootStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Profile'>;
@@ -20,8 +20,7 @@ export function ProfileScreen({ navigation }: Props) {
 
   return (
     <ScreenContainer>
-      <Eyebrow label="Conta" style={styles.eyebrow} />
-      <Text style={styles.heading}>Meu perfil</Text>
+      <TopBar title="Meu perfil" onBack={navigation.goBack} showThemeToggle={false} />
 
       <View style={styles.idCardWrap}>
         <IdCard student={student} showMeta={false} />
@@ -87,15 +86,6 @@ export function ProfileScreen({ navigation }: Props) {
 
 const makeStyles = (t: Theme) =>
   StyleSheet.create({
-    eyebrow: {
-      marginTop: 16,
-    },
-    heading: {
-      fontFamily: fontFamily.bodyBold,
-      fontSize: 19,
-      color: t.colors.text,
-      marginBottom: spacing.lg,
-    },
     idCardWrap: {
       marginBottom: spacing.md,
     },

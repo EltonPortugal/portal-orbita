@@ -1,6 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Feather } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fontFamily } from '../constants';
 import { useColors } from '../theme';
 import { HomeScreen } from '../screens/HomeScreen';
@@ -31,6 +32,7 @@ const tabLabel: Record<keyof MainTabParamList, string> = {
 /** Navegação inferior das cinco telas primárias — equivalente à `.bottomnav` original. */
 export function MainTabs() {
   const colors = useColors();
+  const insets = useSafeAreaInsets();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -42,9 +44,12 @@ export function MainTabs() {
           backgroundColor: colors.panel,
           borderTopColor: colors.line,
           borderTopWidth: 1,
-          height: 76,
+          // A lib só soma o inset quando não damos altura própria (ver
+          // `getTabBarHeight`), e nosso `paddingBottom` sobrescreve o dela —
+          // então os dois precisam do inset somado aqui.
+          height: 76 + insets.bottom,
           paddingTop: 8,
-          paddingBottom: 12,
+          paddingBottom: 12 + insets.bottom,
         },
         tabBarIcon: ({ color, size }) => (
           <Feather name={tabIcon[route.name as keyof MainTabParamList]} size={size - 2} color={color} />

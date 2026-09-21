@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { Appearance } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ColorScheme, Theme, darkTheme, lightTheme } from './palettes';
 
@@ -44,6 +45,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       active = false;
     };
   }, []);
+
+  /**
+   * Alinha a camada nativa ao tema do app. Sem isto, o que o React Native não
+   * pinta — teclado, modais e seletores do sistema — seguiria a aparência do
+   * aparelho, e um app escuro levantaria um teclado branco. Depende de
+   * `userInterfaceStyle: "automatic"` no app.json; se estiver travado em
+   * "light" ou "dark", o sistema ignora esta chamada.
+   */
+  useEffect(() => {
+    // Ausente no React Native Web, onde não há camada nativa para alinhar.
+    Appearance.setColorScheme?.(scheme);
+  }, [scheme]);
 
   const setScheme = useCallback((next: ColorScheme) => {
     setSchemeState(next);

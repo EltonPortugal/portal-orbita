@@ -8,21 +8,33 @@ import { ThemeToggle } from './ThemeToggle';
 interface TopBarProps {
   title: string;
   onBack: () => void;
+  /**
+   * Desliga o atalho de tema no cabeçalho. Usado no Perfil, que já tem a
+   * linha "Modo escuro" na lista de preferências — dois controles para a
+   * mesma coisa na mesma tela só confundem.
+   */
+  showThemeToggle?: boolean;
 }
 
 /** Cabeçalho com botão de voltar, usado em todas as telas secundárias. */
-export function TopBar({ title, onBack }: TopBarProps) {
+export function TopBar({ title, onBack, showThemeToggle = true }: TopBarProps) {
   const styles = useThemedStyles(makeStyles);
   const colors = useColors();
   return (
     <View style={styles.row}>
-      <Pressable onPress={onBack} style={styles.backBtn} hitSlop={8}>
+      <Pressable
+        onPress={onBack}
+        style={styles.backBtn}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel="Voltar"
+      >
         <Feather name="chevron-left" size={18} color={colors.violet} />
       </Pressable>
       <Text style={styles.title} numberOfLines={1}>
         {title}
       </Text>
-      <ThemeToggle />
+      {showThemeToggle && <ThemeToggle />}
     </View>
   );
 }
