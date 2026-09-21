@@ -1,11 +1,5 @@
 import { useEffect, useState } from 'react';
 
-function formatTime(date: Date) {
-  const hh = String(date.getHours()).padStart(2, '0');
-  const mm = String(date.getMinutes()).padStart(2, '0');
-  return `${hh}:${mm}`;
-}
-
 function greetingFor(date: Date) {
   const hour = date.getHours();
   if (hour < 12) return 'Bom dia';
@@ -14,8 +8,9 @@ function greetingFor(date: Date) {
 }
 
 /**
- * Instante corrente da Home, renovado a cada 30s. Expõe o `now` cru para quem
- * precisa derivar algo dele (a contagem da próxima aula) sem abrir outro timer.
+ * Relógio da Home, renovado a cada 30s. Devolve a saudação já formatada e o
+ * `now` cru, para quem precisa derivar algo dele (a contagem da próxima aula)
+ * sem abrir um segundo timer.
  */
 export function useClock() {
   const [now, setNow] = useState(() => new Date());
@@ -25,5 +20,5 @@ export function useClock() {
     return () => clearInterval(id);
   }, []);
 
-  return { now, time: formatTime(now), greeting: greetingFor(now) };
+  return { now, greeting: greetingFor(now) };
 }

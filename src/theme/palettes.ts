@@ -44,13 +44,11 @@ export interface Palette {
   knobOff: string;
   knobOn: string;
 
-  white: string;
-
   /** Cor base das sombras de papel. */
   shadowTint: string;
 }
 
-/** Paleta original "retrô-clean", espelhando o bloco :root de `legacy/style.css`. */
+/** Paleta original "retrô-clean", espelhando o bloco :root de `docs/legacy/style.css`. */
 export const lightPalette: Palette = {
   void: '#F6F1E3',
   panel: '#FBF8EF',
@@ -80,8 +78,6 @@ export const lightPalette: Palette = {
 
   knobOff: '#FBF8EF',
   knobOn: '#FBF8EF',
-
-  white: '#FFFFFF',
 
   shadowTint: '#2B2A22',
 };
@@ -121,14 +117,12 @@ export const darkPalette: Palette = {
   knobOff: '#B3AA90',
   knobOn: '#1F1D16',
 
-  white: '#FFFFFF',
-
   shadowTint: '#000000',
 };
 
 /**
  * Sombras equivalentes às variáveis `--shadow-sm` / `--shadow-md` / `--shadow-lift`
- * de `legacy/style.css`, adaptadas para as APIs de sombra do iOS/Android.
+ * de `docs/legacy/style.css`, adaptadas para as APIs de sombra do iOS/Android.
  */
 function paperShadow(tint: string, opacity: number, radiusPx: number, elevation: number) {
   return Platform.select({
