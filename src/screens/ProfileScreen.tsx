@@ -3,11 +3,13 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { fontFamily, spacing } from '../constants';
-import { Theme, useColors, useTheme, useThemedStyles } from '../theme';
+import { Theme, ThemePreference, useColors, useTheme, useThemedStyles } from '../theme';
 import { getProfile } from '../services';
+import { useLogout } from '../hooks/useLogout';
 import { useResource } from '../hooks/useResource';
 import {
   Button,
+  Chip,
   ErrorState,
   IdCard,
   LoadingState,
@@ -19,11 +21,18 @@ import { RootStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Profile'>;
 
+const appearanceOptions: { value: ThemePreference; label: string }[] = [
+  { value: 'light', label: 'Claro' },
+  { value: 'dark', label: 'Escuro' },
+  { value: 'system', label: 'Sistema' },
+];
+
 /** Perfil do estudante: dados pessoais e preferências de conta. */
 export function ProfileScreen({ navigation }: Props) {
   const styles = useThemedStyles(makeStyles);
   const colors = useColors();
-  const { scheme, setScheme } = useTheme();
+  const { preference, setPreference } = useTheme();
+  const logout = useLogout();
   const [pushNotifications, setPushNotifications] = useState(true);
   const [faceId, setFaceId] = useState(false);
   const { data, loading, refreshing, error, reload } = useResource(getProfile);
@@ -78,17 +87,24 @@ export function ProfileScreen({ navigation }: Props) {
                 accessibilityLabel="Notificações push"
               />
             </View>
-            <View style={styles.row}>
+
+            <View style={[styles.row, styles.rowStacked]}>
               <View style={styles.rowLeft}>
                 <Feather name="moon" size={16} color={colors.cyan} />
-                <Text style={styles.rowLabel}>Modo escuro</Text>
+                <Text style={styles.rowLabel}>Aparência</Text>
               </View>
-              <ToggleSwitch
-                value={scheme === 'dark'}
-                onValueChange={(enabled) => setScheme(enabled ? 'dark' : 'light')}
-                accessibilityLabel="Modo escuro"
-              />
+              <View style={styles.appearanceOptions}>
+                {appearanceOptions.map((option) => (
+                  <Chip
+                    key={option.value}
+                    label={option.label}
+                    active={preference === option.value}
+                    onPress={() => setPreference(option.value)}
+                  />
+                ))}
+              </View>
             </View>
+
             <View style={[styles.row, styles.rowLast]}>
               <View style={styles.rowLeft}>
                 <MaterialCommunityIcons name="face-recognition" size={16} color={colors.cyan} />
@@ -106,7 +122,7 @@ export function ProfileScreen({ navigation }: Props) {
             label="Encerrar sessão"
             variant="danger"
             style={styles.logoutButton}
-            onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Login' }] })}
+            onPress={logout}
           />
         </>
       )}
@@ -130,6 +146,17 @@ const makeStyles = (t: Theme) =>
       borderBottomWidth: 1,
       borderBottomColor: t.colors.line,
       borderStyle: 'dashed',
+    },
+    // Três opções não cabem ao lado do rótulo em tela estreita, então esta
+    // linha empilha em vez de disputar a largura.
+    rowStacked: {
+      flexDirection: 'column',
+      alignItems: 'stretch',
+      gap: spacing.md,
+    },
+    appearanceOptions: {
+      flexDirection: 'row',
+      gap: spacing.sm,
     },
     rowLast: {
       borderBottomWidth: 0,

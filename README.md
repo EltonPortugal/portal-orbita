@@ -28,8 +28,8 @@ portal-orbita/
 ├── src/
 │   ├── constants/         → Tipografia (Google Fonts) e tokens de
 │   │                        espaçamento/raio.
-│   ├── theme/              → Paletas clara/escura, provider do modo noturno
-│   │                        e o hook `useThemedStyles`.
+│   ├── theme/              → Paletas clara/escura, preferência de aparência
+│   │                        (claro/escuro/sistema) e o hook `useThemedStyles`.
 │   ├── services/           → Fronteira com o servidor: um endpoint por tela.
 │   │                        Hoje devolve os mocks de `data/` com latência
 │   │                        simulada; é aqui que entra o `fetch` de verdade.
@@ -39,7 +39,7 @@ portal-orbita/
 │   ├── visual/              → Design system: componentes visuais reutilizáveis
 │   │                        (Card, Chip, Tag, Button, IdCard, GpaRing, etc.).
 │   ├── hooks/               → Hooks compartilhados (`useClock`, `useNextClass`,
-│   │                        `useResource`).
+│   │                        `useResource`, `useLogout`).
 │   ├── navigation/          → `RootNavigator` (stack) e `MainTabs` (abas),
 │   │                        com os tipos de rotas (`types.ts`).
 │   └── screens/             → Uma tela por arquivo, compondo os componentes

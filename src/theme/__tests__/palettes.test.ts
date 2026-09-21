@@ -1,4 +1,4 @@
-import { Palette, darkPalette, lightPalette } from '../palettes';
+import { Palette, darkPalette, lightPalette, resolveScheme } from '../palettes';
 
 const HEX = /^#[0-9A-Fa-f]{6}$/;
 const RGBA = /^rgba\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*(0|1|0?\.\d+)\s*\)$/;
@@ -58,5 +58,24 @@ describe('paletas', () => {
     for (const accent of ['cyan', 'violet', 'mint', 'amber', 'rose'] as const) {
       expect(contrast(darkPalette[accent], darkPalette.panel)).toBeGreaterThanOrEqual(3);
     }
+  });
+});
+
+describe('resolveScheme', () => {
+  it('respeita a escolha explícita, ignorando o aparelho', () => {
+    expect(resolveScheme('light', 'dark')).toBe('light');
+    expect(resolveScheme('dark', 'light')).toBe('dark');
+  });
+
+  it('segue o aparelho quando a preferência é automática', () => {
+    expect(resolveScheme('system', 'dark')).toBe('dark');
+    expect(resolveScheme('system', 'light')).toBe('light');
+  });
+
+  // O aparelho pode não declarar preferência, e no web a informação pode faltar.
+  it('cai no tema claro quando o aparelho não diz nada', () => {
+    expect(resolveScheme('system', 'unspecified')).toBe('light');
+    expect(resolveScheme('system', null)).toBe('light');
+    expect(resolveScheme('system', undefined)).toBe('light');
   });
 });

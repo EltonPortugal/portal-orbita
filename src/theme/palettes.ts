@@ -152,6 +152,27 @@ function makeShadows(tint: string): ShadowSet {
 
 export type ColorScheme = 'light' | 'dark';
 
+/**
+ * O que o usuário escolheu. Diferente de `ColorScheme`, que é o resultado já
+ * resolvido: com 'system', quem decide é a configuração do aparelho.
+ */
+export type ThemePreference = ColorScheme | 'system';
+
+/**
+ * Traduz a preferência no modo que vai vigorar.
+ *
+ * O aparelho pode responder 'unspecified' (sem preferência declarada) ou nada,
+ * quando a plataforma não expõe a informação; nos dois casos o app assume o
+ * tema claro, que é o original do protótipo.
+ */
+export function resolveScheme(
+  preference: ThemePreference,
+  systemScheme: 'light' | 'dark' | 'unspecified' | null | undefined,
+): ColorScheme {
+  if (preference !== 'system') return preference;
+  return systemScheme === 'dark' ? 'dark' : 'light';
+}
+
 /** O que um `makeStyles` recebe: cores da paleta ativa e as sombras casadas com ela. */
 export interface Theme {
   scheme: ColorScheme;

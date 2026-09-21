@@ -2,9 +2,10 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
-import { NativeStackNavigationProp, NativeStackScreenProps } from '@react-navigation/native-stack';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { fontFamily, spacing } from '../constants';
 import { Theme, useThemedStyles } from '../theme';
+import { useLogout } from '../hooks/useLogout';
 import { Eyebrow, MoreTile, ScreenContainer, ThemeToggle } from '../visual';
 import { MainTabParamList, RootStackParamList } from '../navigation/types';
 
@@ -16,7 +17,7 @@ type Props = CompositeScreenProps<
 /** Grade de navegação para as demais áreas do portal e encerramento de sessão. */
 export function MoreScreen({ navigation }: Props) {
   const styles = useThemedStyles(makeStyles);
-  const rootNavigation = navigation.getParent<NativeStackNavigationProp<RootStackParamList>>();
+  const logout = useLogout();
   return (
     <ScreenContainer>
       <Eyebrow label="Navegação" style={styles.eyebrow} />
@@ -61,7 +62,7 @@ export function MoreScreen({ navigation }: Props) {
           title="Sair"
           description="Encerrar sessão"
           tone="rose"
-          onPress={() => rootNavigation?.reset({ index: 0, routes: [{ name: 'Login' }] })}
+          onPress={logout}
         />
       </View>
     </ScreenContainer>
