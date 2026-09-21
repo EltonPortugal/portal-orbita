@@ -6,8 +6,9 @@ import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { fontFamily, spacing } from '../constants';
 import { Theme, useColors, useThemedStyles } from '../theme';
-import { student, nextClass, notices } from '../data';
+import { student, notices } from '../data';
 import { useClock } from '../hooks/useClock';
+import { useNextClass } from '../hooks/useNextClass';
 import {
   Card,
   IdCard,
@@ -29,7 +30,8 @@ type Props = CompositeScreenProps<
 export function HomeScreen({ navigation }: Props) {
   const styles = useThemedStyles(makeStyles);
   const colors = useColors();
-  const { greeting } = useClock();
+  const { greeting, now } = useClock();
+  const nextClass = useNextClass(now);
   const recentNotices = notices.slice(0, 3);
 
   return (
@@ -58,17 +60,21 @@ export function HomeScreen({ navigation }: Props) {
         <StatTile value={String(student.credits)} label="Créditos" />
       </View>
 
-      <Card style={styles.nextClass}>
-        <View style={styles.nextClassBar} />
-        <View style={styles.nextClassInfo}>
-          <Text style={styles.nextClassSubject}>{nextClass.subject}</Text>
-          <Text style={styles.nextClassMeta}>{nextClass.room}</Text>
-        </View>
-        <View style={styles.nextClassCountdown}>
-          <Text style={styles.countdownValue}>{nextClass.startsIn}</Text>
-          <Text style={styles.countdownTime}>{nextClass.time}</Text>
-        </View>
-      </Card>
+      {nextClass && (
+        <Card style={styles.nextClass}>
+          <View style={styles.nextClassBar} />
+          <View style={styles.nextClassInfo}>
+            <Text style={styles.nextClassSubject}>{nextClass.session.subject}</Text>
+            <Text style={styles.nextClassMeta}>
+              {nextClass.session.room} · {nextClass.session.professor}
+            </Text>
+          </View>
+          <View style={styles.nextClassCountdown}>
+            <Text style={styles.countdownValue}>{nextClass.startsIn}</Text>
+            <Text style={styles.countdownTime}>{nextClass.session.time}</Text>
+          </View>
+        </Card>
+      )}
 
       <View style={styles.quickGrid}>
         <QuickAction icon="credit-card" label="Financeiro" onPress={() => navigation.navigate('Financial')} />

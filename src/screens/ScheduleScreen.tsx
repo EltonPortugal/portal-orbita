@@ -2,22 +2,23 @@ import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { fontFamily, spacing } from '../constants';
 import { Theme, useColors, useThemedStyles } from '../theme';
-import { dayNames, dayOrder, schedule } from '../data';
+import { dayKeyForDate, dayNames, dayOrder, schedule } from '../data';
 import { DayKey } from '../types';
 import { Chip, EmptyState, Eyebrow, ScreenContainer, ThemeToggle } from '../visual';
 
-/** Mapeia `Date#getDay()` (0 = domingo) para a chave do dia letivo mais próxima. */
-function resolveTodayKey(): DayKey {
-  const jsWeekday = new Date().getDay();
-  const weekdayToDayKey: DayKey[] = ['SÁB', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
-  return weekdayToDayKey[jsWeekday] ?? 'SEG';
+/**
+ * Dia aberto ao entrar na tela. No domingo não existe grade, então a tela
+ * começa na segunda — o próximo dia com aula — em vez de num sábado vazio.
+ */
+function resolveInitialDay(): DayKey {
+  return dayKeyForDate(new Date()) ?? 'SEG';
 }
 
 /** Grade semanal de aulas com seletor de dia — equivalente às telas "Horário". */
 export function ScheduleScreen() {
   const styles = useThemedStyles(makeStyles);
   const colors = useColors();
-  const [selectedDay, setSelectedDay] = useState<DayKey>(resolveTodayKey);
+  const [selectedDay, setSelectedDay] = useState<DayKey>(resolveInitialDay);
   const classes = useMemo(() => schedule[selectedDay] ?? [], [selectedDay]);
 
   return (

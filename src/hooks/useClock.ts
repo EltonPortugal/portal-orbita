@@ -13,7 +13,10 @@ function greetingFor(date: Date) {
   return 'Boa noite';
 }
 
-/** Relógio da status bar e saudação da Home, atualizados a cada 30s. */
+/**
+ * Instante corrente da Home, renovado a cada 30s. Expõe o `now` cru para quem
+ * precisa derivar algo dele (a contagem da próxima aula) sem abrir outro timer.
+ */
 export function useClock() {
   const [now, setNow] = useState(() => new Date());
 
@@ -22,5 +25,5 @@ export function useClock() {
     return () => clearInterval(id);
   }, []);
 
-  return { time: formatTime(now), greeting: greetingFor(now) };
+  return { now, time: formatTime(now), greeting: greetingFor(now) };
 }

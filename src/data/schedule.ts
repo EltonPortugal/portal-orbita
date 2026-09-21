@@ -33,10 +33,12 @@ export const schedule: WeekSchedule = {
   SÁB: [],
 };
 
-/** Próxima aula fixa exibida no card de destaque da Home. */
-export const nextClass = {
-  subject: 'Inteligência Artificial',
-  room: 'Sala 304 · Bloco C · Prof. R. Nakamura',
-  startsIn: 'em 47 min',
-  time: '19:00',
-};
+/**
+ * Traduz o dia da semana do JavaScript (0 = domingo) para a chave do dia
+ * letivo. Domingo devolve `null` por não existir na grade — quem chama decide
+ * o que fazer, em vez de receber um sábado disfarçado.
+ */
+export function dayKeyForDate(date: Date): DayKey | null {
+  const weekdayToDayKey: (DayKey | null)[] = [null, 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
+  return weekdayToDayKey[date.getDay()] ?? null;
+}
