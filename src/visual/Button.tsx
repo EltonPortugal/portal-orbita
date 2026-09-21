@@ -36,6 +36,8 @@ export function Button({ label, onPress, variant = 'primary', icon, loading, sty
   return (
     <Pressable
       disabled={loading}
+      accessibilityRole="button"
+      accessibilityState={{ disabled: loading, busy: loading }}
       onPress={handlePress}
       style={({ pressed }) => [
         styles.base,

@@ -3,9 +3,10 @@ import { StyleSheet, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { fontFamily, spacing } from '../constants';
 import { Palette, Theme, useColors, useThemedStyles } from '../theme';
-import { notices } from '../data';
+import { getNotices } from '../services';
+import { useResource } from '../hooks/useResource';
 import { NoticeCategory } from '../types';
-import { ScreenContainer, Tag, TopBar } from '../visual';
+import { ErrorState, LoadingState, ScreenContainer, Tag, TopBar } from '../visual';
 import { RootStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Notices'>;
@@ -26,15 +27,17 @@ function categoryDot(colors: Palette, category: NoticeCategory) {
 export function NoticesScreen({ navigation }: Props) {
   const styles = useThemedStyles(makeStyles);
   const colors = useColors();
+  const { data, loading, refreshing, error, reload } = useResource(getNotices);
+
   return (
-    <ScreenContainer>
+    <ScreenContainer onRefresh={() => reload({ silent: true })} refreshing={refreshing}>
       <TopBar title="Mural de avisos" onBack={navigation.goBack} />
 
-      {notices.map((notice, index) => (
-        <View
-          key={notice.id}
-          style={[styles.row, index === notices.length - 1 && styles.rowLast]}
-        >
+      {loading && <LoadingState />}
+      {!loading && error && <ErrorState message={error.message} onRetry={() => reload()} />}
+
+      {!loading && !error && data?.map((notice, index, list) => (
+        <View key={notice.id} style={[styles.row, index === list.length - 1 && styles.rowLast]}>
           <View style={[styles.dot, { backgroundColor: categoryDot(colors, notice.category) }]} />
           <View style={styles.body}>
             <View style={styles.head}>

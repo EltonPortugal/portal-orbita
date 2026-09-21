@@ -12,6 +12,8 @@ npm start        # abre o Expo Dev Tools
 npm run android   # abre no emulador/dispositivo Android
 npm run ios       # abre no simulador iOS (requer macOS)
 npm run web       # abre no navegador
+npm run lint      # ESLint (config do Expo)
+npm test          # Jest — lógica pura (próxima aula, paletas, login)
 ```
 
 ## Estrutura do projeto
@@ -28,12 +30,16 @@ portal-orbita/
 │   │                        espaçamento/raio.
 │   ├── theme/              → Paletas clara/escura, provider do modo noturno
 │   │                        e o hook `useThemedStyles`.
+│   ├── services/           → Fronteira com o servidor: um endpoint por tela.
+│   │                        Hoje devolve os mocks de `data/` com latência
+│   │                        simulada; é aqui que entra o `fetch` de verdade.
 │   ├── data/               → Dados mockados (aluno, horário, notas,
 │   │                        disciplinas, avisos, financeiro, biblioteca, FAQ).
 │   ├── types/              → Tipos TypeScript compartilhados dos dados acima.
 │   ├── visual/              → Design system: componentes visuais reutilizáveis
 │   │                        (Card, Chip, Tag, Button, IdCard, GpaRing, etc.).
-│   ├── hooks/               → Hooks compartilhados (`useClock`, `useNextClass`).
+│   ├── hooks/               → Hooks compartilhados (`useClock`, `useNextClass`,
+│   │                        `useResource`).
 │   ├── navigation/          → `RootNavigator` (stack) e `MainTabs` (abas),
 │   │                        com os tipos de rotas (`types.ts`).
 │   └── screens/             → Uma tela por arquivo, compondo os componentes

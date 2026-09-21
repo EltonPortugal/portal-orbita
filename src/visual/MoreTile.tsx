@@ -20,6 +20,8 @@ export function MoreTile({ icon, title, description, tone = 'default', onPress }
   return (
     <Pressable
       onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${title}. ${description}`}
       style={({ pressed }) => [styles.tile, pressed && styles.pressed]}
     >
       <Feather name={icon} size={22} color={iconColor} style={styles.icon} />

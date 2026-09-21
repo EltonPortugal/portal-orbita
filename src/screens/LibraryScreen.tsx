@@ -4,9 +4,17 @@ import { Feather } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { fontFamily, radius, spacing } from '../constants';
 import { Palette, Theme, useColors, useThemedStyles } from '../theme';
-import { libraryCategories, loans } from '../data';
+import { getLibrary } from '../services';
+import { useResource } from '../hooks/useResource';
 import { DueStatus } from '../types';
-import { Chip, SectionHeader, ScreenContainer, TopBar } from '../visual';
+import {
+  Chip,
+  ErrorState,
+  LoadingState,
+  SectionHeader,
+  ScreenContainer,
+  TopBar,
+} from '../visual';
 import { RootStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Library'>;
@@ -23,50 +31,67 @@ export function LibraryScreen({ navigation }: Props) {
   const styles = useThemedStyles(makeStyles);
   const colors = useColors();
   const [query, setQuery] = useState('');
-  const [activeCategory, setActiveCategory] = useState(libraryCategories[0]);
+  const [chosenCategory, setChosenCategory] = useState<string | null>(null);
+  const { data, loading, refreshing, error, reload } = useResource(getLibrary);
+
+  // A primeira categoria só é conhecida quando o servidor responde. Derivar
+  // evita um efeito que existiria apenas para copiar dado para dentro do estado.
+  const activeCategory = chosenCategory ?? data?.categories[0] ?? null;
 
   return (
-    <ScreenContainer>
+    <ScreenContainer onRefresh={() => reload({ silent: true })} refreshing={refreshing}>
       <TopBar title="Biblioteca" onBack={navigation.goBack} />
 
-      <View style={styles.searchBox}>
-        <Feather name="search" size={16} color={colors.textDim} />
-        <TextInput
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Buscar título, autor ou ISBN..."
-          placeholderTextColor={colors.textFaint}
-          style={styles.searchInput}
-        />
-      </View>
+      {loading && <LoadingState />}
+      {!loading && error && <ErrorState message={error.message} onRetry={() => reload()} />}
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryRow}>
-        {libraryCategories.map((category) => (
-          <Chip
-            key={category}
-            label={category}
-            active={category === activeCategory}
-            onPress={() => setActiveCategory(category)}
-          />
-        ))}
-      </ScrollView>
-
-      <SectionHeader title="Meus empréstimos" />
-      {loans.map((book) => {
-        const tone = dueTone(colors, book.dueStatus);
-        return (
-          <View key={book.id} style={styles.bookRow}>
-            <View style={styles.cover} />
-            <View style={styles.bookInfo}>
-              <Text style={styles.bookTitle}>{book.title}</Text>
-              <Text style={styles.bookAuthor}>{book.author}</Text>
-            </View>
-            <View style={[styles.duePill, { backgroundColor: tone.bg }]}>
-              <Text style={[styles.dueLabel, { color: tone.fg }]}>{book.dueLabel}</Text>
-            </View>
+      {!loading && !error && data && (
+        <>
+          <View style={styles.searchBox}>
+            <Feather name="search" size={16} color={colors.textDim} />
+            <TextInput
+              value={query}
+              onChangeText={setQuery}
+              placeholder="Buscar título, autor ou ISBN..."
+              placeholderTextColor={colors.textFaint}
+              style={styles.searchInput}
+              accessibilityLabel="Buscar no acervo"
+            />
           </View>
-        );
-      })}
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoryRow}
+          >
+            {data.categories.map((category) => (
+              <Chip
+                key={category}
+                label={category}
+                active={category === activeCategory}
+                onPress={() => setChosenCategory(category)}
+              />
+            ))}
+          </ScrollView>
+
+          <SectionHeader title="Meus empréstimos" />
+          {data.loans.map((book) => {
+            const tone = dueTone(colors, book.dueStatus);
+            return (
+              <View key={book.id} style={styles.bookRow}>
+                <View style={styles.cover} />
+                <View style={styles.bookInfo}>
+                  <Text style={styles.bookTitle}>{book.title}</Text>
+                  <Text style={styles.bookAuthor}>{book.author}</Text>
+                </View>
+                <View style={[styles.duePill, { backgroundColor: tone.bg }]}>
+                  <Text style={[styles.dueLabel, { color: tone.fg }]}>{book.dueLabel}</Text>
+                </View>
+              </View>
+            );
+          })}
+        </>
+      )}
     </ScreenContainer>
   );
 }

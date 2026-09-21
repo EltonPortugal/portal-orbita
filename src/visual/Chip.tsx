@@ -14,6 +14,8 @@ export function Chip({ label, active, onPress }: ChipProps) {
   const styles = useThemedStyles(makeStyles);
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected: Boolean(active) }}
       onPress={onPress}
       style={({ pressed }) => [
         styles.chip,

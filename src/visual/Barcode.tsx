@@ -8,11 +8,22 @@ interface BarcodeProps {
   maxHeight?: number;
 }
 
-/** Código de barras decorativo (carteirinha e boleto), gerado com alturas aleatórias. */
+/**
+ * Ruído determinístico a partir do índice da barra. Substitui `Math.random()`,
+ * que é impuro e redesenhava o código de barras a cada remontagem — e, pior,
+ * dava um desenho diferente na carteirinha da Home e na do Perfil.
+ */
+function noiseAt(index: number) {
+  const wave = Math.sin((index + 1) * 12.9898) * 43758.5453;
+  return wave - Math.floor(wave);
+}
+
+/** Código de barras decorativo (carteirinha e boleto), com alturas irregulares. */
 export function Barcode({ bars = 14, minHeight = 6, maxHeight = 18 }: BarcodeProps) {
   const styles = useThemedStyles(makeStyles);
   const heights = useMemo(
-    () => Array.from({ length: bars }, () => minHeight + Math.random() * (maxHeight - minHeight)),
+    () =>
+      Array.from({ length: bars }, (_, index) => minHeight + noiseAt(index) * (maxHeight - minHeight)),
     [bars, minHeight, maxHeight],
   );
 

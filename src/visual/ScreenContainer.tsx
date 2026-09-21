@@ -1,24 +1,46 @@
 import React from 'react';
-import { ScrollView, StyleSheet, View, ViewStyle } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, View, ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Theme, useThemedStyles } from '../theme';
+import { Theme, useColors, useThemedStyles } from '../theme';
 
 interface ScreenContainerProps {
   children: React.ReactNode;
   /** Desativa o scroll quando a tela já controla sua própria rolagem. */
   scrollable?: boolean;
   contentStyle?: ViewStyle;
+  /** Liga o puxar-para-atualizar. Sem `onRefresh`, o gesto não aparece. */
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }
 
 /** Casco padrão de tela: fundo "papel", área segura e rolagem com respiro inferior. */
-export function ScreenContainer({ children, scrollable = true, contentStyle }: ScreenContainerProps) {
+export function ScreenContainer({
+  children,
+  scrollable = true,
+  contentStyle,
+  onRefresh,
+  refreshing = false,
+}: ScreenContainerProps) {
   const styles = useThemedStyles(makeStyles);
+  const colors = useColors();
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       {scrollable ? (
         <ScrollView
           contentContainerStyle={[styles.content, contentStyle]}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            onRefresh ? (
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={colors.cyan}
+                colors={[colors.cyan]}
+                progressBackgroundColor={colors.panel}
+              />
+            ) : undefined
+          }
         >
           {children}
         </ScrollView>

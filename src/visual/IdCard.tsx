@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { fontFamily, radius, spacing } from '../constants';
@@ -21,7 +21,7 @@ interface IdCardProps {
 export function IdCard({ student, showMeta = true }: IdCardProps) {
   const styles = useThemedStyles(makeStyles);
   const colors = useColors();
-  const tilt = useRef(new Animated.Value(0)).current;
+  const [tilt] = useState(() => new Animated.Value(0));
 
   const animateTo = (toValue: number) => {
     Animated.spring(tilt, { toValue, useNativeDriver: true, friction: 6 }).start();

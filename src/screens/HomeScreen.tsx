@@ -6,12 +6,15 @@ import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { fontFamily, spacing } from '../constants';
 import { Theme, useColors, useThemedStyles } from '../theme';
-import { student, notices } from '../data';
+import { getHome } from '../services';
 import { useClock } from '../hooks/useClock';
 import { useNextClass } from '../hooks/useNextClass';
+import { useResource } from '../hooks/useResource';
 import {
   Card,
+  ErrorState,
   IdCard,
+  LoadingState,
   QuickAction,
   ScreenContainer,
   SectionHeader,
@@ -31,76 +34,89 @@ export function HomeScreen({ navigation }: Props) {
   const styles = useThemedStyles(makeStyles);
   const colors = useColors();
   const { greeting, now } = useClock();
-  const nextClass = useNextClass(now);
-  const recentNotices = notices.slice(0, 3);
+  const { data, loading, refreshing, error, reload } = useResource(getHome);
+  const nextClass = useNextClass(data?.schedule ?? null, now);
 
   return (
-    <ScreenContainer>
+    <ScreenContainer onRefresh={() => reload({ silent: true })} refreshing={refreshing}>
       <View style={styles.header}>
         <View>
           <Text style={styles.greeting}>{greeting}</Text>
-          <Text style={styles.name}>{student.displayName}</Text>
+          <Text style={styles.name}>{data?.student.displayName ?? ''}</Text>
         </View>
         <View style={styles.headerActions}>
           <ThemeToggle />
-          <Pressable style={styles.bell} onPress={() => navigation.navigate('Notices')} hitSlop={8}>
+          <Pressable
+            style={styles.bell}
+            onPress={() => navigation.navigate('Notices')}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Mural de avisos"
+          >
             <Feather name="bell" size={17} color={colors.violet} />
             <View style={styles.bellDot} />
           </Pressable>
         </View>
       </View>
 
-      <View style={styles.idCardWrap}>
-        <IdCard student={student} />
-      </View>
+      {loading && <LoadingState />}
+      {!loading && error && <ErrorState message={error.message} onRetry={() => reload()} />}
 
-      <View style={styles.statsRow}>
-        <StatTile value={student.cra.toFixed(1)} label="CRA geral" />
-        <StatTile value={`${student.attendance}%`} label="Frequência" />
-        <StatTile value={String(student.credits)} label="Créditos" />
-      </View>
+      {!loading && !error && data && (
+        <>
+          <View style={styles.idCardWrap}>
+            <IdCard student={data.student} />
+          </View>
 
-      {nextClass && (
-        <Card style={styles.nextClass}>
-          <View style={styles.nextClassBar} />
-          <View style={styles.nextClassInfo}>
-            <Text style={styles.nextClassSubject}>{nextClass.session.subject}</Text>
-            <Text style={styles.nextClassMeta}>
-              {nextClass.session.room} · {nextClass.session.professor}
-            </Text>
+          <View style={styles.statsRow}>
+            <StatTile value={data.student.cra.toFixed(1)} label="CRA geral" />
+            <StatTile value={`${data.student.attendance}%`} label="Frequência" />
+            <StatTile value={String(data.student.credits)} label="Créditos" />
           </View>
-          <View style={styles.nextClassCountdown}>
-            <Text style={styles.countdownValue}>{nextClass.startsIn}</Text>
-            <Text style={styles.countdownTime}>{nextClass.session.time}</Text>
+
+          {nextClass && (
+            <Card style={styles.nextClass}>
+              <View style={styles.nextClassBar} />
+              <View style={styles.nextClassInfo}>
+                <Text style={styles.nextClassSubject}>{nextClass.session.subject}</Text>
+                <Text style={styles.nextClassMeta}>
+                  {nextClass.session.room} · {nextClass.session.professor}
+                </Text>
+              </View>
+              <View style={styles.nextClassCountdown}>
+                <Text style={styles.countdownValue}>{nextClass.startsIn}</Text>
+                <Text style={styles.countdownTime}>{nextClass.session.time}</Text>
+              </View>
+            </Card>
+          )}
+
+          <View style={styles.quickGrid}>
+            <QuickAction icon="credit-card" label="Financeiro" onPress={() => navigation.navigate('Financial')} />
+            <QuickAction icon="book-open" label="Biblioteca" onPress={() => navigation.navigate('Library')} />
+            <QuickAction icon="bell" label="Avisos" onPress={() => navigation.navigate('Notices')} />
+            <QuickAction icon="help-circle" label="Suporte" onPress={() => navigation.navigate('Support')} />
           </View>
-        </Card>
+
+          <SectionHeader
+            title="Mural recente"
+            actionLabel="ver tudo"
+            onActionPress={() => navigation.navigate('Notices')}
+          />
+          <Card>
+            {data.notices.slice(0, 3).map((notice, index, list) => (
+              <View
+                key={notice.id}
+                style={[styles.noticeRow, index === list.length - 1 && styles.noticeRowLast]}
+              >
+                <Tag category={notice.category} />
+                <Text style={styles.noticeText}>
+                  <Text style={styles.noticeTitle}>{notice.title}</Text> {notice.text}
+                </Text>
+              </View>
+            ))}
+          </Card>
+        </>
       )}
-
-      <View style={styles.quickGrid}>
-        <QuickAction icon="credit-card" label="Financeiro" onPress={() => navigation.navigate('Financial')} />
-        <QuickAction icon="book-open" label="Biblioteca" onPress={() => navigation.navigate('Library')} />
-        <QuickAction icon="bell" label="Avisos" onPress={() => navigation.navigate('Notices')} />
-        <QuickAction icon="help-circle" label="Suporte" onPress={() => navigation.navigate('Support')} />
-      </View>
-
-      <SectionHeader
-        title="Mural recente"
-        actionLabel="ver tudo"
-        onActionPress={() => navigation.navigate('Notices')}
-      />
-      <Card>
-        {recentNotices.map((notice, index) => (
-          <View
-            key={notice.id}
-            style={[styles.noticeRow, index === recentNotices.length - 1 && styles.noticeRowLast]}
-          >
-            <Tag category={notice.category} />
-            <Text style={styles.noticeText}>
-              <Text style={styles.noticeTitle}>{notice.title}</Text> {notice.text}
-            </Text>
-          </View>
-        ))}
-      </Card>
     </ScreenContainer>
   );
 }
@@ -130,6 +146,7 @@ const makeStyles = (t: Theme) =>
       fontSize: 26,
       color: t.colors.text,
       marginTop: 2,
+      minHeight: 30,
     },
     bell: {
       width: 38,

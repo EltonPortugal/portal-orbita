@@ -1,31 +1,52 @@
 import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { fontFamily, spacing } from '../constants';
 import { Theme, useColors, useThemedStyles } from '../theme';
+import { signIn, validateCredentials } from '../services';
 import { Button, OrbitMark, ThemeToggle } from '../visual';
 import { RootStackParamList } from '../navigation/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
-const LOGIN_SIMULATION_MS = 900;
-
-/** Porta de entrada do app — autenticação simulada (equivalente a `doLogin()`). */
+/** Porta de entrada do app — autenticação simulada contra `services/auth`. */
 export function LoginScreen({ navigation }: Props) {
   const styles = useThemedStyles(makeStyles);
   const colors = useColors();
   const [registration, setRegistration] = useState('2023104567');
-  const [password, setPassword] = useState('••••••••');
+  const [password, setPassword] = useState('');
   const [authenticating, setAuthenticating] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
 
-  const handleLogin = () => {
+  /** Some com o aviso assim que o usuário mexe no campo — senão ele fica acusando algo já corrigido. */
+  const edit = (setter: (value: string) => void) => (value: string) => {
+    setProblem(null);
+    setter(value);
+  };
+
+  const handleLogin = async () => {
     if (authenticating) return;
+
+    const credentials = { registration, password };
+
+    // Validação local primeiro: campo vazio não merece uma ida ao servidor.
+    const localProblem = validateCredentials(credentials);
+    if (localProblem) {
+      setProblem(localProblem);
+      return;
+    }
+
+    setProblem(null);
     setAuthenticating(true);
-    setTimeout(() => {
-      setAuthenticating(false);
+    try {
+      await signIn(credentials);
       navigation.reset({ index: 0, routes: [{ name: 'Main' }] });
-    }, LOGIN_SIMULATION_MS);
+    } catch (cause) {
+      setProblem(cause instanceof Error ? cause.message : 'Não foi possível entrar.');
+    } finally {
+      setAuthenticating(false);
+    }
   };
 
   return (
@@ -44,24 +65,33 @@ export function LoginScreen({ navigation }: Props) {
         <Text style={styles.label}>Matrícula</Text>
         <TextInput
           value={registration}
-          onChangeText={setRegistration}
+          onChangeText={edit(setRegistration)}
           placeholder="2023104567"
           placeholderTextColor={colors.textFaint}
           style={styles.input}
           keyboardType="number-pad"
+          accessibilityLabel="Matrícula"
         />
       </View>
       <View style={styles.field}>
         <Text style={styles.label}>Senha de acesso</Text>
         <TextInput
           value={password}
-          onChangeText={setPassword}
+          onChangeText={edit(setPassword)}
           placeholder="••••••••"
           placeholderTextColor={colors.textFaint}
           style={styles.input}
           secureTextEntry
+          accessibilityLabel="Senha de acesso"
         />
       </View>
+
+      {problem && (
+        <View style={styles.problemRow} accessibilityRole="alert">
+          <Feather name="alert-circle" size={14} color={colors.rose} />
+          <Text style={styles.problemText}>{problem}</Text>
+        </View>
+      )}
 
       <Button
         label={authenticating ? 'AUTENTICANDO...' : 'ENTRAR NO PORTAL'}
@@ -70,7 +100,13 @@ export function LoginScreen({ navigation }: Props) {
         onPress={handleLogin}
       />
 
-      <Pressable style={styles.bioRow} onPress={handleLogin} hitSlop={8}>
+      <Pressable
+        style={styles.bioRow}
+        onPress={handleLogin}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityLabel="Acessar com biometria"
+      >
         <MaterialCommunityIcons name="fingerprint" size={16} color={colors.violet} />
         <Text style={styles.bioLabel}>Acessar com biometria</Text>
       </Pressable>
@@ -134,6 +170,25 @@ const makeStyles = (t: Theme) =>
       color: t.colors.text,
       fontFamily: fontFamily.monoRegular,
       fontSize: 14,
+    },
+    problemRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      backgroundColor: t.colors.roseSoft,
+      borderWidth: 1,
+      borderColor: t.colors.roseSoftBorder,
+      borderRadius: 10,
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      marginBottom: spacing.lg,
+    },
+    problemText: {
+      flex: 1,
+      fontFamily: fontFamily.bodyRegular,
+      fontSize: 12,
+      color: t.colors.rose,
+      lineHeight: 17,
     },
     bioRow: {
       flexDirection: 'row',

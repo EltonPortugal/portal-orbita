@@ -2,9 +2,19 @@ import React, { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { fontFamily, spacing } from '../constants';
 import { Palette, Theme, useColors, useThemedStyles } from '../theme';
-import { grades, gradesSummary } from '../data';
+import { getGrades } from '../services';
+import { useResource } from '../hooks/useResource';
 import { Grade } from '../types';
-import { Chip, Eyebrow, GpaRing, ProgressBar, ScreenContainer, ThemeToggle } from '../visual';
+import {
+  Chip,
+  ErrorState,
+  Eyebrow,
+  GpaRing,
+  LoadingState,
+  ProgressBar,
+  ScreenContainer,
+  ThemeToggle,
+} from '../visual';
 
 type GradeFilter = 'todas' | Grade['status'];
 
@@ -35,46 +45,60 @@ function mediaTone(colors: Palette, media: number | null) {
 export function GradesScreen() {
   const styles = useThemedStyles(makeStyles);
   const [filter, setFilter] = useState<GradeFilter>('todas');
+  const { data, loading, refreshing, error, reload } = useResource(getGrades);
+
   const filtered = useMemo(
-    () => grades.filter((grade) => filter === 'todas' || grade.status === filter),
-    [filter],
+    () => (data?.grades ?? []).filter((grade) => filter === 'todas' || grade.status === filter),
+    [data, filter],
   );
 
   return (
-    <ScreenContainer>
+    <ScreenContainer onRefresh={() => reload({ silent: true })} refreshing={refreshing}>
       <Eyebrow label="Desempenho acadêmico" style={styles.eyebrow} />
       <View style={styles.headingRow}>
         <Text style={styles.heading}>Notas &amp; frequência</Text>
         <ThemeToggle />
       </View>
 
-      <View style={styles.summaryRow}>
-        <GpaRing value={gradesSummary.cra} />
-        <View style={styles.legend}>
-          <View style={styles.legendRow}>
-            <Text style={styles.legendLabel}>Aprovadas</Text>
-            <Text style={styles.legendValue}>{gradesSummary.approved}</Text>
-          </View>
-          <View style={styles.legendRow}>
-            <Text style={styles.legendLabel}>Cursando</Text>
-            <Text style={styles.legendValue}>{gradesSummary.inProgress}</Text>
-          </View>
-          <View style={styles.legendRow}>
-            <Text style={styles.legendLabel}>Pendentes</Text>
-            <Text style={styles.legendValue}>{gradesSummary.pending}</Text>
-          </View>
-        </View>
-      </View>
+      {loading && <LoadingState />}
+      {!loading && error && <ErrorState message={error.message} onRetry={() => reload()} />}
 
-      <View style={styles.filterRow}>
-        {filters.map((item) => (
-          <Chip key={item.key} label={item.label} active={filter === item.key} onPress={() => setFilter(item.key)} />
-        ))}
-      </View>
+      {!loading && !error && data && (
+        <>
+          <View style={styles.summaryRow}>
+            <GpaRing value={data.summary.cra} />
+            <View style={styles.legend}>
+              <View style={styles.legendRow}>
+                <Text style={styles.legendLabel}>Aprovadas</Text>
+                <Text style={styles.legendValue}>{data.summary.approved}</Text>
+              </View>
+              <View style={styles.legendRow}>
+                <Text style={styles.legendLabel}>Cursando</Text>
+                <Text style={styles.legendValue}>{data.summary.inProgress}</Text>
+              </View>
+              <View style={styles.legendRow}>
+                <Text style={styles.legendLabel}>Pendentes</Text>
+                <Text style={styles.legendValue}>{data.summary.pending}</Text>
+              </View>
+            </View>
+          </View>
 
-      {filtered.map((grade) => (
-        <GradeCard key={grade.code} grade={grade} />
-      ))}
+          <View style={styles.filterRow}>
+            {filters.map((item) => (
+              <Chip
+                key={item.key}
+                label={item.label}
+                active={filter === item.key}
+                onPress={() => setFilter(item.key)}
+              />
+            ))}
+          </View>
+
+          {filtered.map((grade) => (
+            <GradeCard key={grade.code} grade={grade} />
+          ))}
+        </>
+      )}
     </ScreenContainer>
   );
 }
@@ -86,7 +110,13 @@ function GradeCard({ grade }: { grade: Grade }) {
   const tone = mediaTone(colors, average(grade));
 
   return (
-    <Pressable style={styles.card} onPress={() => setOpen((prev) => !prev)}>
+    <Pressable
+      style={styles.card}
+      onPress={() => setOpen((prev) => !prev)}
+      accessibilityRole="button"
+      accessibilityState={{ expanded: open }}
+      accessibilityLabel={`${grade.subject}, ${open ? 'recolher' : 'expandir'} detalhes`}
+    >
       <View style={styles.cardHeader}>
         <View>
           <Text style={styles.subject}>{grade.subject}</Text>
@@ -109,12 +139,17 @@ function GradeCard({ grade }: { grade: Grade }) {
           <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>AV2</Text>
             <View style={styles.barWrap}>
-              <ProgressBar percent={grade.av2 != null ? (grade.av2 / 10) * 100 : 0} color={colors.cyan} height={5} />
+              <ProgressBar
+                percent={grade.av2 != null ? (grade.av2 / 10) * 100 : 0}
+                color={colors.cyan}
+                height={5}
+              />
             </View>
             <Text style={styles.detailValue}>{grade.av2 != null ? grade.av2.toFixed(1) : '—'}</Text>
           </View>
           <Text style={styles.freqNote}>
-            Frequência: {grade.frequency}% · Situação: {grade.status === 'cursando' ? 'Em andamento' : 'Aprovado'}
+            Frequência: {grade.frequency}% · Situação:{' '}
+            {grade.status === 'cursando' ? 'Em andamento' : 'Aprovado'}
           </Text>
         </View>
       )}

@@ -2,9 +2,19 @@ import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { fontFamily, spacing } from '../constants';
 import { Theme, useColors, useThemedStyles } from '../theme';
-import { dayKeyForDate, dayNames, dayOrder, schedule } from '../data';
+import { dayKeyForDate, dayNames, dayOrder } from '../data';
+import { getSchedule } from '../services';
+import { useResource } from '../hooks/useResource';
 import { DayKey } from '../types';
-import { Chip, EmptyState, Eyebrow, ScreenContainer, ThemeToggle } from '../visual';
+import {
+  Chip,
+  EmptyState,
+  ErrorState,
+  Eyebrow,
+  LoadingState,
+  ScreenContainer,
+  ThemeToggle,
+} from '../visual';
 
 /**
  * Dia aberto ao entrar na tela. No domingo não existe grade, então a tela
@@ -19,7 +29,9 @@ export function ScheduleScreen() {
   const styles = useThemedStyles(makeStyles);
   const colors = useColors();
   const [selectedDay, setSelectedDay] = useState<DayKey>(resolveInitialDay);
-  const classes = useMemo(() => schedule[selectedDay] ?? [], [selectedDay]);
+  const { data, loading, error, reload } = useResource(getSchedule);
+
+  const classes = useMemo(() => data?.[selectedDay] ?? [], [data, selectedDay]);
 
   return (
     <ScreenContainer scrollable={false}>
@@ -29,38 +41,50 @@ export function ScheduleScreen() {
         <ThemeToggle />
       </View>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.dayChips}
-      >
-        {dayOrder.map((day) => (
-          <Chip key={day} label={day} active={day === selectedDay} onPress={() => setSelectedDay(day)} />
-        ))}
-      </ScrollView>
+      {loading && <LoadingState />}
+      {!loading && error && <ErrorState message={error.message} onRetry={() => reload()} />}
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.list}>
-        {classes.length === 0 ? (
-          <EmptyState icon="calendar" message={`Sem aulas em ${dayNames[selectedDay]}`} />
-        ) : (
-          classes.map((session, index) => (
-            <View key={`${session.time}-${session.subject}`} style={styles.classItem}>
-              <Text style={styles.time}>{session.time}</Text>
-              <View style={styles.timeline}>
-                <View style={[styles.node, { backgroundColor: colors[session.accent] }]} />
-                {index < classes.length - 1 && <View style={styles.stem} />}
-              </View>
-              <View style={styles.classCard}>
-                <Text style={styles.subject}>{session.subject}</Text>
-                <View style={styles.metaRow}>
-                  <Text style={styles.meta}>{session.room}</Text>
-                  <Text style={styles.meta}>{session.professor}</Text>
+      {!loading && !error && data && (
+        <>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.dayChips}
+          >
+            {dayOrder.map((day) => (
+              <Chip
+                key={day}
+                label={day}
+                active={day === selectedDay}
+                onPress={() => setSelectedDay(day)}
+              />
+            ))}
+          </ScrollView>
+
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.list}>
+            {classes.length === 0 ? (
+              <EmptyState icon="calendar" message={`Sem aulas em ${dayNames[selectedDay]}`} />
+            ) : (
+              classes.map((session, index) => (
+                <View key={`${session.time}-${session.subject}`} style={styles.classItem}>
+                  <Text style={styles.time}>{session.time}</Text>
+                  <View style={styles.timeline}>
+                    <View style={[styles.node, { backgroundColor: colors[session.accent] }]} />
+                    {index < classes.length - 1 && <View style={styles.stem} />}
+                  </View>
+                  <View style={styles.classCard}>
+                    <Text style={styles.subject}>{session.subject}</Text>
+                    <View style={styles.metaRow}>
+                      <Text style={styles.meta}>{session.room}</Text>
+                      <Text style={styles.meta}>{session.professor}</Text>
+                    </View>
+                  </View>
                 </View>
-              </View>
-            </View>
-          ))
-        )}
-      </ScrollView>
+              ))
+            )}
+          </ScrollView>
+        </>
+      )}
     </ScreenContainer>
   );
 }

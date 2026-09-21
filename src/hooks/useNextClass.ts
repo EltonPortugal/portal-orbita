@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { dayKeyForDate, schedule } from '../data';
+import { dayKeyForDate } from '../data';
 import { ClassSession, WeekSchedule } from '../types';
 
 const MINUTES_PER_DAY = 24 * 60;
@@ -60,7 +60,10 @@ export function resolveNextClass(week: WeekSchedule, now: Date): NextClass | nul
   return null;
 }
 
-/** Versão reativa: recalcula a cada tique do relógio da Home. */
-export function useNextClass(now: Date): NextClass | null {
-  return useMemo(() => resolveNextClass(schedule, now), [now]);
+/**
+ * Versão reativa: recalcula a cada tique do relógio da Home. Aceita `null`
+ * enquanto a grade ainda está vindo do servidor.
+ */
+export function useNextClass(week: WeekSchedule | null, now: Date): NextClass | null {
+  return useMemo(() => (week ? resolveNextClass(week, now) : null), [week, now]);
 }

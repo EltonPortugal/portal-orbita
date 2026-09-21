@@ -17,6 +17,7 @@ export function QuickAction({ icon, label, onPress }: QuickActionProps) {
   return (
     <Pressable
       onPress={onPress}
+      accessibilityRole="button"
       style={({ pressed }) => [styles.tile, pressed && styles.pressed]}
     >
       <Feather name={icon} size={19} color={colors.cyan} style={styles.icon} />

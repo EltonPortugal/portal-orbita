@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Animated, Pressable, StyleSheet } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Theme, useColors, useThemedStyles } from '../theme';
@@ -6,13 +6,21 @@ import { Theme, useColors, useThemedStyles } from '../theme';
 interface ToggleSwitchProps {
   value: boolean;
   onValueChange: (value: boolean) => void;
+  /**
+   * O que este interruptor controla. Sem isto o leitor de tela anuncia apenas
+   * "ligado/desligado", sem dizer do quê — o rótulo visual fica numa `Text`
+   * irmã, que a tecnologia assistiva não associa sozinha.
+   */
+  accessibilityLabel?: string;
 }
 
 /** Interruptor on/off usado na tela de Perfil (notificações, modo escuro, biometria). */
-export function ToggleSwitch({ value, onValueChange }: ToggleSwitchProps) {
+export function ToggleSwitch({ value, onValueChange, accessibilityLabel }: ToggleSwitchProps) {
   const styles = useThemedStyles(makeStyles);
   const colors = useColors();
-  const anim = useRef(new Animated.Value(value ? 1 : 0)).current;
+  // Instância estável sem guardar ref: o valor animado nasce uma vez e
+  // sobrevive aos renders, sem ser lido como `.current` durante o render.
+  const [anim] = useState(() => new Animated.Value(value ? 1 : 0));
 
   // O valor pode mudar de fora (o tema também é alternado pelo atalho do
   // cabeçalho), então a animação acompanha a prop em vez de só o toque.
@@ -42,7 +50,13 @@ export function ToggleSwitch({ value, onValueChange }: ToggleSwitchProps) {
   });
 
   return (
-    <Pressable onPress={toggle} hitSlop={8}>
+    <Pressable
+      onPress={toggle}
+      hitSlop={8}
+      accessibilityRole="switch"
+      accessibilityState={{ checked: value }}
+      accessibilityLabel={accessibilityLabel}
+    >
       <Animated.View
         style={[
           styles.track,

@@ -2,22 +2,35 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { fontFamily, spacing } from '../constants';
 import { Theme, useColors, useThemedStyles } from '../theme';
-import { courses } from '../data';
-import { Eyebrow, ProgressBar, ScreenContainer, ThemeToggle } from '../visual';
+import { getCourses } from '../services';
+import { useResource } from '../hooks/useResource';
+import {
+  ErrorState,
+  Eyebrow,
+  LoadingState,
+  ProgressBar,
+  ScreenContainer,
+  ThemeToggle,
+} from '../visual';
 
 /** Lista de disciplinas do semestre corrente com progresso individual. */
 export function CoursesScreen() {
   const styles = useThemedStyles(makeStyles);
   const colors = useColors();
+  const { data, loading, refreshing, error, reload } = useResource(getCourses);
+
   return (
-    <ScreenContainer>
+    <ScreenContainer onRefresh={() => reload({ silent: true })} refreshing={refreshing}>
       <Eyebrow label="Semestre 2026.2" style={styles.eyebrow} />
       <View style={styles.headingRow}>
         <Text style={styles.heading}>Minhas disciplinas</Text>
         <ThemeToggle />
       </View>
 
-      {courses.map((course) => (
+      {loading && <LoadingState />}
+      {!loading && error && <ErrorState message={error.message} onRetry={() => reload()} />}
+
+      {!loading && !error && data?.map((course) => (
         <View key={course.subject} style={styles.card}>
           <View style={styles.top}>
             <View style={styles.topInfo}>
